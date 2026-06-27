@@ -1,10 +1,145 @@
 {% extends 'base.html' %}
-{% block title %}Coming Soon — Inventra{% endblock %}
-{% block topbar_title %}Coming Soon{% endblock %}
+{% load static %}
+{% block title %}Staff — Inventra{% endblock %}
+{% block topbar_title %}Staff Management{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="empty-state">
-  <div class="empty-icon">🚧</div>
-  <h3>This page is coming soon</h3>
-  <p>We're building this section. Check back shortly.</p>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <span>Staff</span>
+    </div>
+    <h1>Staff Members</h1>
+    <p>Manage your team and their access levels</p>
+  </div>
+  <div class="page-header-right">
+    {% if user_profile.is_manager %}
+      <a href="{% url 'accounts:add_staff' %}" class="btn btn-primary">
+        + Add Staff Member
+      </a>
+    {% endif %}
+  </div>
 </div>
+
+<!-- Stats Strip -->
+<div class="staff-stats">
+  <div class="staff-stat-item">
+    <div class="stat-number">{{ staff.count }}</div>
+    <div class="stat-label">Total Members</div>
+  </div>
+  <div class="staff-stat-item">
+    <div class="stat-number">
+      {{ staff|length }}
+    </div>
+    <div class="stat-label">Active Users</div>
+  </div>
+  <div class="staff-stat-item">
+    <div class="stat-number">
+      {% for s in staff %}{% if s.role == 'owner' or s.role == 'manager' %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
+      {% with managers=staff|length %}{{ managers }}{% endwith %}
+    </div>
+    <div class="stat-label">Managers & Owners</div>
+  </div>
+</div>
+
+<!-- Staff Table -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>All Staff</h2>
+      <p>{{ staff.count }} member{{ staff.count|pluralize }} in {{ tenant.name }}</p>
+    </div>
+  </div>
+
+  {% if staff %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Role</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Joined</th>
+            {% if user_profile.is_manager %}<th>Actions</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in staff %}
+          <tr>
+            <!-- Name & Avatar -->
+            <td>
+              <div class="staff-name-cell">
+                {% if member.avatar %}
+                  <img src="{{ member.avatar.url }}" class="staff-avatar" alt="">
+                {% else %}
+                  <div class="staff-avatar-placeholder">
+                    {{ member.user.first_name|first|upper }}{{ member.user.last_name|first|upper }}
+                  </div>
+                {% endif %}
+                <div class="staff-name-info">
+                  <strong>
+                    {{ member.user.get_full_name|default:member.user.username }}
+                    {% if member.user == request.user %}
+                      <span class="badge badge-primary" style="font-size:10px; margin-left:4px;">You</span>
+                    {% endif %}
+                  </strong>
+                  <span>@{{ member.user.username }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Role -->
+            <td>
+              <span class="profile-role-badge role-{{ member.role }}">
+                {{ member.get_role_display }}
+              </span>
+            </td>
+
+            <!-- Phone -->
+            <td>{{ member.phone|default:"—" }}</td>
+
+            <!-- Email -->
+            <td>{{ member.user.email|default:"—" }}</td>
+
+            <!-- Joined -->
+            <td>{{ member.created_at|date:"M d, Y" }}</td>
+
+            <!-- Actions -->
+            {% if user_profile.is_manager %}
+            <td>
+              <div class="table-actions">
+                {% if member.user != request.user and member.role != 'owner' %}
+                  <a href="{% url 'accounts:edit_staff' member.id %}"
+                     class="btn btn-ghost btn-sm">Edit</a>
+                  {% if user_profile.is_owner %}
+                    <a href="{% url 'accounts:remove_staff' member.id %}"
+                       class="btn btn-danger btn-sm"
+                       data-confirm="Remove {{ member.user.get_full_name }}? This cannot be undone.">
+                      Remove
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted" style="font-size:12px;">—</span>
+                {% endif %}
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with icon="👥" title="No staff members yet" message="Add your first team member to get started." action_url=add_url action_label="Add Staff Member" %}
+  {% endif %}
+</div>
+
 {% endblock %}

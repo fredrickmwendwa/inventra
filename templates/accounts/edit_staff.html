@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Staff — Inventra{% endblock %}
+{% block topbar_title %}Edit Staff Member{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <a href="{% url 'accounts:staff_list' %}">Staff</a>
+      <span class="separator">›</span>
+      <span>Edit Member</span>
+    </div>
+    <h1>Edit Staff Member</h1>
+    <p>Update role and details for {{ staff_profile.user.get_full_name }}</p>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'accounts:staff_list' %}" class="btn btn-secondary">← Back to Staff</a>
+  </div>
+</div>
+
+<!-- Form -->
+<div class="form-card edit-staff-card">
+  <div class="card-header">
+    <div class="staff-name-cell">
+      {% if staff_profile.avatar %}
+        <img src="{{ staff_profile.avatar.url }}" class="staff-avatar" alt="">
+      {% else %}
+        <div class="staff-avatar-placeholder">
+          {{ staff_profile.user.first_name|first|upper }}{{ staff_profile.user.last_name|first|upper }}
+        </div>
+      {% endif %}
+      <div class="staff-name-info">
+        <strong>{{ staff_profile.user.get_full_name|default:staff_profile.user.username }}</strong>
+        <span>@{{ staff_profile.user.username }}</span>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="first_name"
+               value="{{ staff_profile.user.first_name }}"
+               class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="last_name"
+               value="{{ staff_profile.user.last_name }}"
+               class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="text" name="phone"
+               value="{{ staff_profile.phone }}"
+               class="form-control" placeholder="Phone Number">
+      </div>
+
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role" class="form-control">
+          {% for value, label in roles %}
+            {% if value != 'owner' %}
+              <option value="{{ value }}" {% if staff_profile.role == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flex gap-12">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{% url 'accounts:staff_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
