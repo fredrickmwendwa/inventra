@@ -1,59 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inventra — Inventory & Sales Management</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
-  </head>
-  <body>
-    <div class="landing-wrapper">
-      <div class="landing-badge">✦ Multi-Tenant Inventory Platform</div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventra — Inventory & Sales Management</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
 
-      <h1 class="landing-title">
-        Manage Inventory &<br />
-        <span>Sales Smarter</span>
-      </h1>
+  <div class="landing-wrapper">
 
-      <p class="landing-subtitle">
-        Inventra gives your business complete control over stock, sales, and
-        suppliers — all in one clean dashboard.
-      </p>
+    <div class="landing-badge">✦ Multi-Tenant Inventory Platform</div>
 
-      <div class="landing-actions">
-        <a href="{% url 'tenants:register' %}" class="btn-primary">
-          Get Started Free →
-        </a>
-        <a href="{% url 'tenants:login' %}" class="btn-outline"> Sign In </a>
+    <h1 class="landing-title">
+      Manage Inventory &<br>
+      <span>Sales Smarter</span>
+    </h1>
+
+    <p class="landing-subtitle">
+      Inventra gives your business complete control over stock, sales, and suppliers — all in one clean dashboard.
+    </p>
+
+    <div class="landing-actions">
+      <a href="{% url 'tenants:register' %}" class="btn-primary">
+        Get Started Free →
+      </a>
+      <a href="{% url 'tenants:login' %}" class="btn-outline">
+        Sign In
+      </a>
+    </div>
+
+    <div class="landing-features">
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Inventory Control</h3>
+        <p>Track products, categories, and stock levels in real time with automatic reorder alerts.</p>
       </div>
-
-      <div class="landing-features">
-        <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h3>Inventory Control</h3>
-          <p>
-            Track products, categories, and stock levels in real time with
-            automatic reorder alerts.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🧾</div>
-          <h3>Sales Management</h3>
-          <p>
-            Create and manage sales orders, track revenue, and monitor
-            performance over time.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🏢</div>
-          <h3>Multi-Business</h3>
-          <p>
-            Each business gets its own isolated workspace. Perfect for teams of
-            any size.
-          </p>
-        </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧾</div>
+        <h3>Sales Management</h3>
+        <p>Create and manage sales orders, track revenue, and monitor performance over time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3>Multi-Business</h3>
+        <p>Each business gets its own isolated workspace. Perfect for teams of any size.</p>
       </div>
     </div>
-  </body>
+
+  </div>
+
+</body>
 </html>

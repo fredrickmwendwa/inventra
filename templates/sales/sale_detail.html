@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ sale.sale_number }} — Inventra{% endblock %}
+{% block topbar_title %}Sale Detail{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/sales.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <a href="{% url 'sales:sale_list' %}">Sales</a>
+      <span class="separator">›</span>
+      <span>{{ sale.sale_number }}</span>
+    </div>
+    <h1>{{ sale.sale_number }}</h1>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'sales:sale_list' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<!-- Sale Header Card -->
+<div class="sale-detail-header">
+  <div class="sale-header-top">
+
+    <!-- Left: number + status -->
+    <div>
+      <div class="sale-number-big">{{ sale.sale_number }}</div>
+      <div class="sale-meta">
+        Created {{ sale.created_at|date:"F d, Y \a\t H:i" }}
+        {% if sale.created_by %}
+          by {{ sale.created_by.get_full_name|default:sale.created_by.username }}
+        {% endif %}
+      </div>
+      <div style="margin-top:12px;">
+        {% if sale.status == 'confirmed' %}
+          <span class="badge badge-success" style="font-size:13px; padding:5px 14px;">
+            ✅ Confirmed
+          </span>
+        {% elif sale.status == 'draft' %}
+          <span class="badge badge-warning" style="font-size:13px; padding:5px 14px;">
+            📝 Draft
+          </span>
+        {% else %}
+          <span class="badge badge-danger" style="font-size:13px; padding:5px 14px;">
+            ❌ Cancelled
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right: actions -->
+    <div class="sale-header-actions">
+      {% if sale.status == 'draft' %}
+        <a href="{% url 'sales:confirm_sale' sale.id %}"
+           class="btn btn-success"
+           data-confirm="Confirm sale {{ sale.sale_number }}? Stock will be deducted.">
+          ✅ Confirm Sale
+        </a>
+        <a href="{% url 'sales:edit_sale' sale.id %}"
+           class="btn btn-primary">Edit</a>
+        <a href="{% url 'sales:cancel_sale' sale.id %}"
+           class="btn btn-danger"
+           data-confirm="Cancel this sale?">
+          Cancel
+        </a>
+      {% elif sale.status == 'confirmed' %}
+        <a href="{% url 'sales:cancel_sale' sale.id %}"
+           class="btn btn-danger"
+           data-confirm="Cancel this confirmed sale? Stock will be restored.">
+          Cancel & Restore Stock
+        </a>
+      {% endif %}
+      {% if sale.status != 'confirmed' %}
+        <a href="{% url 'sales:delete_sale' sale.id %}"
+           class="btn btn-ghost"
+           data-confirm="Delete sale {{ sale.sale_number }}? This cannot be undone.">
+          Delete
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Customer Info Strip -->
+  <div class="customer-strip">
+    <div class="customer-item">
+      <div class="customer-icon">👤</div>
+      <div class="customer-text">
+        <div class="customer-label">Customer</div>
+        <div class="customer-value">{{ sale.customer_name }}</div>
+      </div>
+    </div>
+    <div class="customer-item">
+      <div class="customer-icon">📞</div>
+      <div class="customer-text">
+        <div class="customer-label">Phone</div>
+        <div class="customer-value">{{ sale.customer_phone|default:"Not provided" }}</div>
+      </div>
+    </div>
+    <div class="customer-item">
+      <div class="customer-icon">✉️</div>
+      <div class="customer-text">
+        <div class="customer-label">Email</div>
+        <div class="customer-value">{{ sale.customer_email|default:"Not provided" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Line Items -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>Line Items</h2>
+      <p>{{ sale.total_items }} item{{ sale.total_items|pluralize }}</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="line-items-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Unit Price</th>
+          <th>Quantity</th>
+          <th class="text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in sale.items.all %}
+        <tr>
+          <td><strong>{{ item.product.name }}</strong></td>
+          <td>KES {{ item.unit_price|floatformat:2 }}</td>
+          <td>{{ item.quantity }}</td>
+          <td class="text-right font-bold">
+            KES {{ item.subtotal|floatformat:2 }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-right text-muted">Total</td>
+          <td class="text-right">
+            KES {{ sale.total_amount|floatformat:2 }}
+          </td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3" class="text-right">Amount Due</td>
+          <td class="text-right text-success">
+            KES {{ sale.total_amount|floatformat:2 }}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Notes -->
+{% if sale.notes %}
+<div class="card mt-16">
+  <div class="card-header">
+    <h2>📋 Notes</h2>
+  </div>
+  <p style="color:var(--text-soft); font-size:13px; line-height:1.7;">
+    {{ sale.notes }}
+  </p>
+</div>
+{% endif %}
+
+{% endblock %}

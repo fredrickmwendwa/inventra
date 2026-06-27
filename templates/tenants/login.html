@@ -1,60 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In — Inventra</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
-  </head>
-  <body>
-    <div class="auth-wrapper">
-      <div class="auth-card">
-        <!-- Brand -->
-        <div class="auth-brand">
-          <div class="logo-mark">I</div>
-          <h1>Welcome Back</h1>
-          <p>Sign in to your Inventra workspace</p>
-        </div>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — Inventra</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
 
-        <!-- Messages -->
-        {% if messages %} {% for message in messages %}
-        <div
-          class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}"
-        >
-          {{ message }}
-        </div>
-        {% endfor %} {% endif %}
+  <div class="auth-wrapper">
+    <div class="auth-card">
 
-        <form method="POST">
-          {% csrf_token %}
-
-          <div class="form-group">
-            <label>Username</label>
-            {{ form.username }} {% if form.username.errors %}
-            <span class="field-error"
-              >{{ form.username.errors|join:", " }}</span
-            >
-            {% endif %}
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            {{ form.password }} {% if form.password.errors %}
-            <span class="field-error"
-              >{{ form.password.errors|join:", " }}</span
-            >
-            {% endif %}
-          </div>
-
-          <button type="submit" class="btn-auth">Sign In →</button>
-        </form>
-
-        <div class="auth-footer">
-          Don't have an account?
-          <a href="{% url 'tenants:register' %}">Register your business</a>
-        </div>
+      <!-- Brand -->
+      <div class="auth-brand">
+        <div class="logo-mark">I</div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to your Inventra workspace</p>
       </div>
+
+      <!-- Messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <span class="field-error">{{ form.username.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <span class="field-error">{{ form.password.errors|join:", " }}</span>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-auth">Sign In →</button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="{% url 'tenants:register' %}">Register your business</a>
+      </div>
+
     </div>
-  </body>
+  </div>
+
+</body>
 </html>

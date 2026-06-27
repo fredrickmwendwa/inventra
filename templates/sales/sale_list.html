@@ -1,10 +1,153 @@
 {% extends 'base.html' %}
-{% block title %}Coming Soon — Inventra{% endblock %}
-{% block topbar_title %}Coming Soon{% endblock %}
+{% load static %}
+{% block title %}Sales — Inventra{% endblock %}
+{% block topbar_title %}Sales{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/sales.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="empty-state">
-  <div class="empty-icon">🚧</div>
-  <h3>This page is coming soon</h3>
-  <p>We're building this section. Check back shortly.</p>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <span>Sales</span>
+    </div>
+    <h1>Sales Orders</h1>
+    <p>Track and manage all your sales</p>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'sales:new_sale' %}" class="btn btn-primary">+ New Sale</a>
+  </div>
 </div>
+
+<!-- Stats -->
+<div class="sales-stats">
+  <div class="sales-stat-item">
+    <div class="sales-stat-icon green">💰</div>
+    <div class="sales-stat-text">
+      <div class="stat-number">KES {{ revenue|floatformat:0 }}</div>
+      <div class="stat-label">Total Revenue</div>
+    </div>
+  </div>
+  <div class="sales-stat-item">
+    <div class="sales-stat-icon indigo">✅</div>
+    <div class="sales-stat-text">
+      <div class="stat-number">{{ total_confirmed }}</div>
+      <div class="stat-label">Confirmed</div>
+    </div>
+  </div>
+  <div class="sales-stat-item">
+    <div class="sales-stat-icon amber">📝</div>
+    <div class="sales-stat-text">
+      <div class="stat-number">{{ total_draft }}</div>
+      <div class="stat-label">Drafts</div>
+    </div>
+  </div>
+  <div class="sales-stat-item">
+    <div class="sales-stat-icon red">❌</div>
+    <div class="sales-stat-text">
+      <div class="stat-number">{{ total_cancelled }}</div>
+      <div class="stat-label">Cancelled</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
+    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ q }}"
+             placeholder="Search by sale number or customer...">
+    </div>
+    <select name="status" class="form-control" style="width:160px;">
+      <option value="">All Status</option>
+      <option value="draft"     {% if status == 'draft'     %}selected{% endif %}>Draft</option>
+      <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+      <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if q or status %}
+      <a href="{% url 'sales:sale_list' %}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+  {% if page_obj.object_list %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Sale #</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in page_obj %}
+          <tr>
+            <td>
+              <span class="sale-number">{{ sale.sale_number }}</span>
+            </td>
+            <td>
+              <strong>{{ sale.customer_name }}</strong>
+              {% if sale.customer_phone %}
+                <br><span class="text-muted" style="font-size:12px;">
+                  {{ sale.customer_phone }}
+                </span>
+              {% endif %}
+            </td>
+            <td>{{ sale.total_items }} item{{ sale.total_items|pluralize }}</td>
+            <td class="font-bold">KES {{ sale.total_amount|floatformat:2 }}</td>
+            <td>
+              {% if sale.status == 'confirmed' %}
+                <span class="badge badge-success">Confirmed</span>
+              {% elif sale.status == 'draft' %}
+                <span class="badge badge-warning">Draft</span>
+              {% else %}
+                <span class="badge badge-danger">Cancelled</span>
+              {% endif %}
+            </td>
+            <td>
+              {{ sale.created_by.get_full_name|default:sale.created_by.username|default:"—" }}
+            </td>
+            <td>{{ sale.created_at|date:"M d, Y" }}</td>
+            <td>
+              <div class="table-actions">
+                <a href="{% url 'sales:sale_detail' sale.id %}"
+                   class="btn btn-ghost btn-sm">View</a>
+                {% if sale.status == 'draft' %}
+                  <a href="{% url 'sales:edit_sale' sale.id %}"
+                     class="btn btn-secondary btn-sm">Edit</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with
+       icon="🧾"
+       title="No sales found"
+       message="Create your first sale to start tracking revenue."
+       action_url="/sales/new/"
+       action_label="New Sale"
+    %}
+  {% endif %}
+</div>
+
 {% endblock %}
