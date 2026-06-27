@@ -1,165 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register — Inventra</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
-  </head>
-  <body>
-    <div class="auth-wrapper">
-      <div class="auth-card register-card">
-        <!-- Brand -->
-        <div class="auth-brand">
-          <div class="logo-mark">I</div>
-          <h1>Create Your Account</h1>
-          <p>Set up your business workspace in minutes</p>
-        </div>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Inventra</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
 
-        <!-- Messages -->
-        {% if messages %} {% for message in messages %}
-        <div
-          class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}"
-        >
-          {{ message }}
-        </div>
-        {% endfor %} {% endif %}
+  <div class="auth-wrapper">
+    <div class="auth-card register-card">
 
-        <form method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
+      <!-- Brand -->
+      <div class="auth-brand">
+        <div class="logo-mark">I</div>
+        <h1>Create Your Account</h1>
+        <p>Set up your business workspace in minutes</p>
+      </div>
 
-          <!-- Business Info Section -->
-          <p class="form-section-label">Business Information</p>
+      <!-- Messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
 
-          <div class="form-grid">
-            <!-- Business Name -->
-            <div class="form-group full-width">
-              <label>Business Name</label>
-              {{ business_form.name }} {% if business_form.name.errors %}
-              <span class="field-error"
-                >{{ business_form.name.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
 
-            <!-- Business Email -->
-            <div class="form-group">
-              <label>Business Email</label>
-              {{ business_form.email }} {% if business_form.email.errors %}
-              <span class="field-error"
-                >{{ business_form.email.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
+        <!-- Business Info Section -->
+        <p class="form-section-label">Business Information</p>
 
-            <!-- Phone -->
-            <div class="form-group">
-              <label>Phone Number</label>
-              {{ business_form.phone }} {% if business_form.phone.errors %}
-              <span class="field-error"
-                >{{ business_form.phone.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <!-- Address -->
-            <div class="form-group full-width">
-              <label>Business Address</label>
-              {{ business_form.address }} {% if business_form.address.errors %}
-              <span class="field-error"
-                >{{ business_form.address.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <!-- Logo -->
-            <div class="form-group full-width">
-              <label>Business Logo (optional)</label>
-              {{ business_form.logo }} {% if business_form.logo.errors %}
-              <span class="field-error"
-                >{{ business_form.logo.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
+        <div class="form-grid">
+          <!-- Business Name -->
+          <div class="form-group full-width">
+            <label>Business Name</label>
+            {{ business_form.name }}
+            {% if business_form.name.errors %}
+              <span class="field-error">{{ business_form.name.errors|join:", " }}</span>
+            {% endif %}
           </div>
 
-          <div class="section-divider"></div>
-
-          <!-- Owner Info Section -->
-          <p class="form-section-label">Owner Account</p>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label>First Name</label>
-              {{ owner_form.first_name }} {% if owner_form.first_name.errors %}
-              <span class="field-error"
-                >{{ owner_form.first_name.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <div class="form-group">
-              <label>Last Name</label>
-              {{ owner_form.last_name }} {% if owner_form.last_name.errors %}
-              <span class="field-error"
-                >{{ owner_form.last_name.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <div class="form-group">
-              <label>Username</label>
-              {{ owner_form.username }} {% if owner_form.username.errors %}
-              <span class="field-error"
-                >{{ owner_form.username.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <div class="form-group">
-              <label>Personal Email</label>
-              {{ owner_form.email }} {% if owner_form.email.errors %}
-              <span class="field-error"
-                >{{ owner_form.email.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <div class="form-group">
-              <label>Password</label>
-              {{ owner_form.password }} {% if owner_form.password.errors %}
-              <span class="field-error"
-                >{{ owner_form.password.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
-
-            <div class="form-group">
-              <label>Confirm Password</label>
-              {{ owner_form.confirm_password }} {% if
-              owner_form.confirm_password.errors %}
-              <span class="field-error"
-                >{{ owner_form.confirm_password.errors|join:", " }}</span
-              >
-              {% endif %}
-            </div>
+          <!-- Business Email -->
+          <div class="form-group">
+            <label>Business Email</label>
+            {{ business_form.email }}
+            {% if business_form.email.errors %}
+              <span class="field-error">{{ business_form.email.errors|join:", " }}</span>
+            {% endif %}
           </div>
 
-          {% if owner_form.non_field_errors %}
+          <!-- Phone -->
+          <div class="form-group">
+            <label>Phone Number</label>
+            {{ business_form.phone }}
+            {% if business_form.phone.errors %}
+              <span class="field-error">{{ business_form.phone.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Address -->
+          <div class="form-group full-width">
+            <label>Business Address</label>
+            {{ business_form.address }}
+            {% if business_form.address.errors %}
+              <span class="field-error">{{ business_form.address.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Logo -->
+          <div class="form-group full-width">
+            <label>Business Logo (optional)</label>
+            {{ business_form.logo }}
+            {% if business_form.logo.errors %}
+              <span class="field-error">{{ business_form.logo.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Owner Info Section -->
+        <p class="form-section-label">Owner Account</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name</label>
+            {{ owner_form.first_name }}
+            {% if owner_form.first_name.errors %}
+              <span class="field-error">{{ owner_form.first_name.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Last Name</label>
+            {{ owner_form.last_name }}
+            {% if owner_form.last_name.errors %}
+              <span class="field-error">{{ owner_form.last_name.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Username</label>
+            {{ owner_form.username }}
+            {% if owner_form.username.errors %}
+              <span class="field-error">{{ owner_form.username.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Personal Email</label>
+            {{ owner_form.email }}
+            {% if owner_form.email.errors %}
+              <span class="field-error">{{ owner_form.email.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            {{ owner_form.password }}
+            {% if owner_form.password.errors %}
+              <span class="field-error">{{ owner_form.password.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Confirm Password</label>
+            {{ owner_form.confirm_password }}
+            {% if owner_form.confirm_password.errors %}
+              <span class="field-error">{{ owner_form.confirm_password.errors|join:", " }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if owner_form.non_field_errors %}
           <div class="alert alert-error">
             {{ owner_form.non_field_errors|join:", " }}
           </div>
-          {% endif %}
+        {% endif %}
 
-          <button type="submit" class="btn-auth">Create Account →</button>
-        </form>
+        <button type="submit" class="btn-auth">Create Account →</button>
+      </form>
 
-        <div class="auth-footer">
-          Already have an account?
-          <a href="{% url 'tenants:login' %}">Sign in</a>
-        </div>
+      <div class="auth-footer">
+        Already have an account? <a href="{% url 'tenants:login' %}">Sign in</a>
       </div>
+
     </div>
-  </body>
+  </div>
+
+</body>
 </html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Inventra{% endblock %}</title>
+  {% load static %}
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+
+  <!-- Extra CSS per page -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Django messages passed to JS -->
+  {% include 'components/messages.html' %}
+
+  <div class="app-layout">
+
+    <!-- ======= SIDEBAR ======= -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Toggle button -->
+      <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar">
+        <span class="toggle-arrow">‹</span>
+      </button>
+
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-logo">I</div>
+        <div class="brand-text">
+          <h2>Inventra</h2>
+          <span>Management Suite</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+
+        <span class="nav-section-label">Main</span>
+
+        <a href="{% url 'dashboard:home' %}" class="nav-item">
+          <span class="nav-icon">⬛</span>
+          <span class="nav-label">Dashboard</span>
+          <span class="nav-tooltip">Dashboard</span>
+        </a>
+
+        <span class="nav-section-label">Inventory</span>
+
+        <a href="{% url 'inventory:product_list' %}" class="nav-item">
+          <span class="nav-icon">📦</span>
+          <span class="nav-label">Products</span>
+          <span class="nav-tooltip">Products</span>
+        </a>
+
+        <a href="{% url 'inventory:category_list' %}" class="nav-item">
+          <span class="nav-icon">🏷️</span>
+          <span class="nav-label">Categories</span>
+          <span class="nav-tooltip">Categories</span>
+        </a>
+
+        <a href="{% url 'inventory:stock_movements' %}" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Stock Movements</span>
+          <span class="nav-tooltip">Stock Movements</span>
+        </a>
+
+        <span class="nav-section-label">Sales</span>
+
+        <a href="{% url 'sales:sale_list' %}" class="nav-item">
+          <span class="nav-icon">🧾</span>
+          <span class="nav-label">Sales</span>
+          <span class="nav-tooltip">Sales</span>
+        </a>
+
+        <span class="nav-section-label">People</span>
+
+        <a href="{% url 'suppliers:supplier_list' %}" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-label">Suppliers</span>
+          <span class="nav-tooltip">Suppliers</span>
+        </a>
+
+        <a href="{% url 'accounts:staff_list' %}" class="nav-item">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Staff</span>
+          <span class="nav-tooltip">Staff</span>
+        </a>
+
+        <span class="nav-section-label">Settings</span>
+
+        <a href="{% url 'accounts:profile' %}" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span class="nav-label">Profile</span>
+          <span class="nav-tooltip">Profile</span>
+        </a>
+
+      </nav>
+
+      <!-- Sidebar Footer: User info -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user" data-dropdown="userDropdown">
+          {% if user_profile and user_profile.avatar %}
+            <img src="{{ user_profile.avatar.url }}" alt="avatar"
+                 class="avatar" width="34" height="34">
+          {% else %}
+            <div class="avatar-placeholder" style="width:34px;height:34px;font-size:13px;">
+              {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+          {% endif %}
+          <div class="user-info">
+            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-role">{{ user_profile.role|default:"—" }}</div>
+          </div>
+        </div>
+
+        <!-- User dropdown -->
+        <div class="dropdown-menu" id="userDropdown">
+          <div class="dropdown-header">
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            <span>{{ tenant.name|default:"" }}</span>
+          </div>
+          <a href="{% url 'accounts:profile' %}" class="dropdown-item">👤 My Profile</a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'tenants:logout' %}" class="dropdown-item danger">🚪 Sign Out</a>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <div class="main-content" id="mainContent">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <!-- Mobile hamburger -->
+          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+          <span class="topbar-title">{% block topbar_title %}{% endblock %}</span>
+        </div>
+        <div class="topbar-right">
+          <!-- Tenant badge -->
+          {% if tenant %}
+            <div class="topbar-tenant">
+              <span class="tenant-dot"></span>
+              {{ tenant.name }}
+            </div>
+          {% endif %}
+          <!-- Profile link -->
+          <a href="{% url 'accounts:profile' %}" class="topbar-btn" title="Profile">👤</a>
+          <!-- Logout -->
+          <a href="{% url 'tenants:logout' %}" class="topbar-btn" title="Sign out">🚪</a>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="page-body">
+        {% block content %}{% endblock %}
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Core JS -->
+  <script src="{% static 'js/sidebar.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Extra JS per page -->
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

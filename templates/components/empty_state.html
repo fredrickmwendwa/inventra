@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <div class="empty-icon">{{ icon|default:"📭" }}</div>
+  <h3>{{ title|default:"Nothing here yet" }}</h3>
+  <p>{{ message|default:"Get started by adding your first item." }}</p>
+  {% if action_url and action_label %}
+    <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>
+  {% endif %}
+</div>

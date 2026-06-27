@@ -1,8 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head><title>Dashboard</title></head>
-<body>
-<h1>Dashboard — Coming in Phase 3</h1>
-<a href="/logout/">Logout</a>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Dashboard — Inventra{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Welcome back, {{ request.user.first_name|default:request.user.username }} 👋</h1>
+    <p>Here's what's happening with {{ tenant.name }} today.</p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-info">
+      <h3>Total Products</h3>
+      <div class="stat-value">—</div>
+    </div>
+    <div class="stat-icon indigo">📦</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-info">
+      <h3>Total Sales</h3>
+      <div class="stat-value">—</div>
+    </div>
+    <div class="stat-icon green">🧾</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-info">
+      <h3>Suppliers</h3>
+      <div class="stat-value">—</div>
+    </div>
+    <div class="stat-icon sky">🏢</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-info">
+      <h3>Staff Members</h3>
+      <div class="stat-value">—</div>
+    </div>
+    <div class="stat-icon amber">👥</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>Getting Started</h2>
+      <p>Complete these steps to set up your workspace</p>
+    </div>
+  </div>
+  <div class="empty-state">
+    <div class="empty-icon">🚀</div>
+    <h3>Dashboard is ready</h3>
+    <p>Real stats and charts will appear here once you start adding products and recording sales.</p>
+    <a href="{% url 'inventory:product_list' %}" class="btn btn-primary btn-sm">Add First Product</a>
+  </div>
+</div>
+{% endblock %}
