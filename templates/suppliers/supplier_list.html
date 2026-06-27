@@ -1,10 +1,160 @@
 {% extends 'base.html' %}
-{% block title %}Coming Soon — Inventra{% endblock %}
-{% block topbar_title %}Coming Soon{% endblock %}
+{% load static %}
+{% block title %}Suppliers — Inventra{% endblock %}
+{% block topbar_title %}Suppliers{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/suppliers.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="empty-state">
-  <div class="empty-icon">🚧</div>
-  <h3>This page is coming soon</h3>
-  <p>We're building this section. Check back shortly.</p>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <span>Suppliers</span>
+    </div>
+    <h1>Suppliers</h1>
+    <p>Manage your product suppliers and vendors</p>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'suppliers:add_supplier' %}" class="btn btn-primary">+ Add Supplier</a>
+  </div>
 </div>
+
+<!-- Stats Strip -->
+<div class="supplier-stats">
+  <div class="supplier-stat-item">
+    <div class="supplier-stat-icon indigo">🏢</div>
+    <div class="supplier-stat-text">
+      <div class="stat-number">{{ total_active|add:total_inactive }}</div>
+      <div class="stat-label">Total Suppliers</div>
+    </div>
+  </div>
+  <div class="supplier-stat-item">
+    <div class="supplier-stat-icon green">✅</div>
+    <div class="supplier-stat-text">
+      <div class="stat-number">{{ total_active }}</div>
+      <div class="stat-label">Active</div>
+    </div>
+  </div>
+  <div class="supplier-stat-item">
+    <div class="supplier-stat-icon red">⛔</div>
+    <div class="supplier-stat-text">
+      <div class="stat-number">{{ total_inactive }}</div>
+      <div class="stat-label">Inactive</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
+    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ q }}"
+             placeholder="Search by name, email or phone...">
+    </div>
+    <select name="status" class="form-control" style="width:160px;">
+      <option value="">All Status</option>
+      <option value="active"   {% if status == 'active'   %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if q or status %}
+      <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+  {% if page_obj.object_list %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for supplier in page_obj %}
+          <tr>
+
+            <!-- Name -->
+            <td>
+              <div class="supplier-name-cell">
+                <div class="supplier-avatar">
+                  {{ supplier.name|first|upper }}
+                </div>
+                <div class="supplier-name-info">
+                  <strong>{{ supplier.name }}</strong>
+                  {% if supplier.notes %}
+                    <span>{{ supplier.notes|truncatechars:40 }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+
+            <!-- Phone -->
+            <td>{{ supplier.phone|default:"—" }}</td>
+
+            <!-- Email -->
+            <td>{{ supplier.email|default:"—" }}</td>
+
+            <!-- Address -->
+            <td>{{ supplier.address|truncatechars:40|default:"—" }}</td>
+
+            <!-- Status -->
+            <td>
+              {% if supplier.is_active %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-danger">Inactive</span>
+              {% endif %}
+            </td>
+
+            <!-- Added date -->
+            <td>{{ supplier.created_at|date:"M d, Y" }}</td>
+
+            <!-- Actions -->
+            <td>
+              <div class="table-actions">
+                <a href="{% url 'suppliers:supplier_detail' supplier.id %}"
+                   class="btn btn-ghost btn-sm">View</a>
+                <a href="{% url 'suppliers:edit_supplier' supplier.id %}"
+                   class="btn btn-secondary btn-sm">Edit</a>
+                <a href="{% url 'suppliers:delete_supplier' supplier.id %}"
+                   class="btn btn-danger btn-sm"
+                   data-confirm="Delete supplier '{{ supplier.name }}'? This cannot be undone.">
+                  Delete
+                </a>
+              </div>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with
+       icon="🏢"
+       title="No suppliers found"
+       message="Add your first supplier to start tracking your vendors."
+       action_url="/suppliers/add/"
+       action_label="Add Supplier"
+    %}
+  {% endif %}
+</div>
+
 {% endblock %}

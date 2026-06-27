@@ -1,10 +1,95 @@
 {% extends 'base.html' %}
-{% block title %}Coming Soon — Inventra{% endblock %}
-{% block topbar_title %}Coming Soon{% endblock %}
+{% load static %}
+{% block title %}Stock Movements — Inventra{% endblock %}
+{% block topbar_title %}Stock Movements{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="empty-state">
-  <div class="empty-icon">🚧</div>
-  <h3>This page is coming soon</h3>
-  <p>We're building this section. Check back shortly.</p>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <span>Stock Movements</span>
+    </div>
+    <h1>Stock Movements</h1>
+    <p>Full history of all stock changes</p>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'inventory:add_stock_movement' %}" class="btn btn-primary">+ Record Movement</a>
+  </div>
 </div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
+    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ q }}" placeholder="Search by product...">
+    </div>
+    <select name="type" class="form-control" style="width:180px;">
+      <option value="">All Types</option>
+      <option value="in" {% if movement_type == 'in' %}selected{% endif %}>Stock In</option>
+      <option value="out" {% if movement_type == 'out' %}selected{% endif %}>Stock Out</option>
+      <option value="adjustment" {% if movement_type == 'adjustment' %}selected{% endif %}>Adjustment</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if q or movement_type %}
+      <a href="{% url 'inventory:stock_movements' %}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<div class="card">
+  {% if page_obj.object_list %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Notes</th>
+            <th>Recorded By</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movement in page_obj %}
+          <tr>
+            <td><strong>{{ movement.product.name }}</strong></td>
+            <td>
+              <span class="movement-type-badge movement-{{ movement.movement_type }}">
+                {% if movement.movement_type == 'in' %}↑ Stock In
+                {% elif movement.movement_type == 'out' %}↓ Stock Out
+                {% else %}⇄ Adjustment
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              {% if movement.movement_type == 'in' %}
+                <span class="qty-positive">+{{ movement.quantity }}</span>
+              {% elif movement.movement_type == 'out' %}
+                <span class="qty-negative">-{{ movement.quantity }}</span>
+              {% else %}
+                <span class="qty-neutral">{{ movement.quantity }}</span>
+              {% endif %}
+            </td>
+            <td>{{ movement.notes|default:"—"|truncatechars:50 }}</td>
+            <td>{{ movement.created_by.get_full_name|default:movement.created_by.username|default:"—" }}</td>
+            <td>{{ movement.created_at|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with icon="📊" title="No movements found" message="Stock movements appear here when you record stock in, out or adjustments." action_url="/inventory/stock-movements/add/" action_label="Record Movement" %}
+  {% endif %}
+</div>
+
 {% endblock %}

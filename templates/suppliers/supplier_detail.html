@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ supplier.name }} — Inventra{% endblock %}
+{% block topbar_title %}Supplier Detail{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/suppliers.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+      <span class="separator">›</span>
+      <span>{{ supplier.name }}</span>
+    </div>
+    <h1>{{ supplier.name }}</h1>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<!-- Supplier Header Card -->
+<div class="supplier-detail-header">
+  <div class="supplier-header-top">
+
+    <!-- Left: avatar + name -->
+    <div class="supplier-header-left">
+      <div class="supplier-big-avatar">
+        {{ supplier.name|first|upper }}
+      </div>
+      <div class="supplier-header-info">
+        <h1>{{ supplier.name }}</h1>
+        <div class="supplier-since">
+          Added on {{ supplier.created_at|date:"F d, Y" }}
+        </div>
+        <div style="margin-top:10px;">
+          {% if supplier.is_active %}
+            <span class="badge badge-success">Active Supplier</span>
+          {% else %}
+            <span class="badge badge-danger">Inactive</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: action buttons -->
+    <div class="supplier-header-actions">
+      <a href="{% url 'suppliers:edit_supplier' supplier.id %}"
+         class="btn btn-primary btn-sm">Edit</a>
+
+      <a href="{% url 'suppliers:toggle_status' supplier.id %}"
+         class="btn btn-sm {% if supplier.is_active %}btn-toggle-active{% else %}btn-toggle-inactive{% endif %}"
+         data-confirm="{% if supplier.is_active %}Deactivate {{ supplier.name }}?{% else %}Activate {{ supplier.name }}?{% endif %}">
+        {% if supplier.is_active %}Deactivate{% else %}Activate{% endif %}
+      </a>
+
+      <a href="{% url 'suppliers:delete_supplier' supplier.id %}"
+         class="btn btn-danger btn-sm"
+         data-confirm="Delete supplier '{{ supplier.name }}'? This cannot be undone.">
+        Delete
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Contact Info -->
+  <div class="contact-grid">
+
+    <div class="contact-item">
+      <div class="contact-icon">📞</div>
+      <div class="contact-text">
+        <div class="contact-label">Phone</div>
+        <div class="contact-value">{{ supplier.phone|default:"Not provided" }}</div>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">✉️</div>
+      <div class="contact-text">
+        <div class="contact-label">Email</div>
+        <div class="contact-value">
+          {% if supplier.email %}
+            <a href="mailto:{{ supplier.email }}"
+               style="color:var(--primary-light);">
+              {{ supplier.email }}
+            </a>
+          {% else %}
+            Not provided
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">📍</div>
+      <div class="contact-text">
+        <div class="contact-label">Address</div>
+        <div class="contact-value">{{ supplier.address|default:"Not provided" }}</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Notes Card -->
+{% if supplier.notes %}
+<div class="notes-card">
+  <h3>📋 Notes</h3>
+  <p>{{ supplier.notes }}</p>
+</div>
+{% endif %}
+
+<!-- Meta Info Card -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>Supplier Record</h2>
+      <p>Timeline and metadata</p>
+    </div>
+  </div>
+  <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; padding:8px 0;">
+    <div>
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase;
+                  letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">
+        Date Added
+      </div>
+      <div style="font-size:14px; color:var(--text); font-weight:500;">
+        {{ supplier.created_at|date:"F d, Y \a\t H:i" }}
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase;
+                  letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">
+        Last Updated
+      </div>
+      <div style="font-size:14px; color:var(--text); font-weight:500;">
+        {{ supplier.updated_at|date:"F d, Y \a\t H:i" }}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

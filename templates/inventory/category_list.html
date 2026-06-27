@@ -1,10 +1,56 @@
 {% extends 'base.html' %}
-{% block title %}Coming Soon — Inventra{% endblock %}
-{% block topbar_title %}Coming Soon{% endblock %}
+{% load static %}
+{% block title %}Categories — Inventra{% endblock %}
+{% block topbar_title %}Categories{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="empty-state">
-  <div class="empty-icon">🚧</div>
-  <h3>This page is coming soon</h3>
-  <p>We're building this section. Check back shortly.</p>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <span>Categories</span>
+    </div>
+    <h1>Categories</h1>
+    <p>Organise your products into categories</p>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'inventory:add_category' %}" class="btn btn-primary">+ Add Category</a>
+  </div>
 </div>
+
+{% if categories %}
+  <div class="category-grid">
+    {% for category in categories %}
+    <div class="category-card">
+      <div class="category-icon">🏷️</div>
+      <h3>{{ category.name }}</h3>
+      <p>{{ category.description|default:"No description provided." }}</p>
+      <div class="category-footer">
+        <span class="category-count">
+          {{ category.product_count }} product{{ category.product_count|pluralize }}
+        </span>
+        <div class="category-actions">
+          <a href="{% url 'inventory:edit_category' category.id %}"
+             class="btn btn-ghost btn-sm">Edit</a>
+          <a href="{% url 'inventory:delete_category' category.id %}"
+             class="btn btn-danger btn-sm"
+             data-confirm="Delete category '{{ category.name }}'? Products in this category will become uncategorised.">
+            Delete
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    {% include 'components/empty_state.html' with icon="🏷️" title="No categories yet" message="Create your first category to organise your products." action_url="/inventory/categories/add/" action_label="Add Category" %}
+  </div>
+{% endif %}
+
 {% endblock %}

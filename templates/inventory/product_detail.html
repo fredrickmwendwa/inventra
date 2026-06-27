@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} — Inventra{% endblock %}
+{% block topbar_title %}Product Detail{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <a href="{% url 'inventory:product_list' %}">Products</a>
+      <span class="separator">›</span>
+      <span>{{ product.name }}</span>
+    </div>
+    <h1>{{ product.name }}</h1>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'inventory:edit_product' product.id %}" class="btn btn-primary">Edit Product</a>
+    <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<!-- Product Header Card -->
+<div class="product-detail-header">
+  {% if product.image %}
+    <img src="{{ product.image.url }}" class="product-detail-image" alt="{{ product.name }}">
+  {% else %}
+    <div class="product-detail-image-placeholder">📦</div>
+  {% endif %}
+
+  <div class="product-detail-info">
+    <h1>{{ product.name }}</h1>
+    <div class="sku">SKU: {{ product.sku|default:"Not set" }}</div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      {% if product.category %}
+        <span class="badge badge-primary">{{ product.category.name }}</span>
+      {% endif %}
+      {% if product.is_out_of_stock %}
+        <span class="badge badge-danger">Out of Stock</span>
+      {% elif product.is_low_stock %}
+        <span class="badge badge-warning">Low Stock</span>
+      {% elif product.is_active %}
+        <span class="badge badge-success">Active</span>
+      {% else %}
+        <span class="badge badge-neutral">Inactive</span>
+      {% endif %}
+    </div>
+
+    {% if product.description %}
+      <p style="margin-top:14px; color:var(--text-muted); font-size:13px; line-height:1.7;">
+        {{ product.description }}
+      </p>
+    {% endif %}
+
+    <!-- Stats Grid -->
+    <div class="product-meta-grid">
+      <div class="product-meta-item">
+        <div class="meta-value">KES {{ product.unit_price|floatformat:2 }}</div>
+        <div class="meta-label">Selling Price</div>
+      </div>
+      <div class="product-meta-item">
+        <div class="meta-value">KES {{ product.cost_price|floatformat:2 }}</div>
+        <div class="meta-label">Cost Price</div>
+      </div>
+      <div class="product-meta-item">
+        <div class="meta-value {% if product.is_out_of_stock %}text-danger{% elif product.is_low_stock %}text-warning{% else %}text-success{% endif %}">
+          {{ product.stock_quantity }}
+        </div>
+        <div class="meta-label">In Stock</div>
+      </div>
+      <div class="product-meta-item">
+        <div class="meta-value">{{ product.profit_margin }}%</div>
+        <div class="meta-label">Margin</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Stock Movements -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>Recent Stock Movements</h2>
+      <p>Last 10 movements for this product</p>
+    </div>
+    <a href="{% url 'inventory:add_stock_movement' %}" class="btn btn-secondary btn-sm">
+      + Record Movement
+    </a>
+  </div>
+
+  {% if movements %}
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Notes</th>
+            <th>Recorded By</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movement in movements %}
+          <tr>
+            <td>
+              <span class="movement-type-badge movement-{{ movement.movement_type }}">
+                {% if movement.movement_type == 'in' %}↑ Stock In
+                {% elif movement.movement_type == 'out' %}↓ Stock Out
+                {% else %}⇄ Adjustment
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              {% if movement.movement_type == 'in' %}
+                <span class="qty-positive">+{{ movement.quantity }}</span>
+              {% elif movement.movement_type == 'out' %}
+                <span class="qty-negative">-{{ movement.quantity }}</span>
+              {% else %}
+                <span class="qty-neutral">{{ movement.quantity }}</span>
+              {% endif %}
+            </td>
+            <td>{{ movement.notes|default:"—" }}</td>
+            <td>{{ movement.created_by.get_full_name|default:movement.created_by.username|default:"—" }}</td>
+            <td>{{ movement.created_at|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with icon="📊" title="No movements yet" message="Stock changes will appear here." %}
+  {% endif %}
+</div>
+
+{% endblock %}

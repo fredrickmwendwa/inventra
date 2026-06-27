@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Add Product — Inventra{% endblock %}
+{% block topbar_title %}Add Product{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Dashboard</a>
+      <span class="separator">›</span>
+      <a href="{% url 'inventory:product_list' %}">Products</a>
+      <span class="separator">›</span>
+      <span>Add</span>
+    </div>
+    <h1>Add Product</h1>
+  </div>
+  <div class="page-header-right">
+    <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="form-card">
+  <div class="card-header">
+    <div><h2>Product Information</h2><p>Fill in the details below</p></div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-grid-2">
+      <div class="form-group form-full">
+        <label>Product Name <span class="required">*</span></label>
+        <input type="text" name="name"
+               value="{{ form.name.value|default:'' }}"
+               class="form-control" placeholder="Product name">
+        {% if form.name.errors %}<span class="field-error">{{ form.name.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>SKU</label>
+        <input type="text" name="sku"
+               value="{{ form.sku.value|default:'' }}"
+               class="form-control" placeholder="e.g. PROD-001">
+        {% if form.sku.errors %}<span class="field-error">{{ form.sku.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select name="category" class="form-control">
+          <option value="">No Category</option>
+          {% for cat in form.fields.category.queryset %}
+            <option value="{{ cat.id }}" {% if form.category.value|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group form-full">
+        <label>Description</label>
+        <textarea name="description" class="form-control"
+                  rows="3" placeholder="Product description">{{ form.description.value|default:'' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Selling Price (KES) <span class="required">*</span></label>
+        <input type="number" name="unit_price"
+               value="{{ form.unit_price.value|default:'0' }}"
+               class="form-control" step="0.01" min="0">
+        {% if form.unit_price.errors %}<span class="field-error">{{ form.unit_price.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Cost Price (KES)</label>
+        <input type="number" name="cost_price"
+               value="{{ form.cost_price.value|default:'0' }}"
+               class="form-control" step="0.01" min="0">
+        {% if form.cost_price.errors %}<span class="field-error">{{ form.cost_price.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Opening Stock Quantity <span class="required">*</span></label>
+        <input type="number" name="stock_quantity"
+               value="{{ form.stock_quantity.value|default:'0' }}"
+               class="form-control" min="0">
+        {% if form.stock_quantity.errors %}<span class="field-error">{{ form.stock_quantity.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Reorder Level</label>
+        <input type="number" name="reorder_level"
+               value="{{ form.reorder_level.value|default:'10' }}"
+               class="form-control" min="0">
+        <p class="form-help">Get a warning when stock falls to this level</p>
+      </div>
+
+      <div class="form-group form-full">
+        <label>Product Image</label>
+        <input type="file" name="image" accept="image/*" id="productImageInput">
+        <div class="image-preview-wrapper">
+          <img id="productImagePreview" class="image-preview" src="" alt="Preview">
+        </div>
+        {% if form.image.errors %}<span class="field-error">{{ form.image.errors|join:", " }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+          <input type="checkbox" name="is_active"
+                 {% if form.is_active.value != False %}checked{% endif %}
+                 style="width:16px;height:16px;">
+          Active (visible and available for sale)
+        </label>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flex gap-12">
+      <button type="submit" class="btn btn-primary">Save Product</button>
+      <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('productImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const preview = document.getElementById('productImagePreview');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    }
+  });
+</script>
+{% endblock %}
