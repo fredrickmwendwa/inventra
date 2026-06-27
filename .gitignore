@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual enviroments
+venv/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# Media
+media/
+
+# Static files
+staticfiles/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Migration cache
+*.pyc

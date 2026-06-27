@@ -1,0 +1,17 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('apps.tenants.urls')),
+    path('dashboard/', include('apps.dashboard.urls')),
+    path('inventory/', include('apps.inventory.urls')),
+    path('sales/', include('apps.sales.urls')),
+    path('suppliers/', include('apps.suppliers.urls')),
+    path('accounts/', include('apps.accounts.urls')),
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
