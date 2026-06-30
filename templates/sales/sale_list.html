@@ -1,152 +1,129 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Sales — Inventra{% endblock %}
-{% block topbar_title %}Sales{% endblock %}
+{% block title %}Sales{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/sales.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Sales</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Sales</span>
-    </div>
-    <h1>Sales Orders</h1>
-    <p>Track and manage all your sales</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Sales</h1>
+    <p class="sf-body" style="margin-top:4px;">Track and manage every sale, draft to confirmed.</p>
   </div>
-  <div class="page-header-right">
-    <a href="{% url 'sales:new_sale' %}" class="btn btn-primary">+ New Sale</a>
+  <a href="{% url 'sales:new_sale' %}" class="sf-btn sf-btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    New sale
+  </a>
+</div>
+
+<!-- KPI strip -->
+<div class="sf-grid sf-grid-4 sf-mb-4">
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Total revenue</div>
+    <div class="sf-num-lg" style="color:var(--color-brand-strong);">
+      KES {{ revenue|floatformat:0 }}
+    </div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Confirmed</div>
+    <div class="sf-num-lg">{{ total_confirmed }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Drafts</div>
+    <div class="sf-num-lg" style="color:var(--color-accent-amber);">{{ total_draft }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Cancelled</div>
+    <div class="sf-num-lg" style="color:var(--color-danger);">{{ total_cancelled }}</div>
   </div>
 </div>
 
-<!-- Stats -->
-<div class="sales-stats">
-  <div class="sales-stat-item">
-    <div class="sales-stat-icon green">💰</div>
-    <div class="sales-stat-text">
-      <div class="stat-number">KES {{ revenue|floatformat:0 }}</div>
-      <div class="stat-label">Total Revenue</div>
-    </div>
-  </div>
-  <div class="sales-stat-item">
-    <div class="sales-stat-icon indigo">✅</div>
-    <div class="sales-stat-text">
-      <div class="stat-number">{{ total_confirmed }}</div>
-      <div class="stat-label">Confirmed</div>
-    </div>
-  </div>
-  <div class="sales-stat-item">
-    <div class="sales-stat-icon amber">📝</div>
-    <div class="sales-stat-text">
-      <div class="stat-number">{{ total_draft }}</div>
-      <div class="stat-label">Drafts</div>
-    </div>
-  </div>
-  <div class="sales-stat-item">
-    <div class="sales-stat-icon red">❌</div>
-    <div class="sales-stat-text">
-      <div class="stat-number">{{ total_cancelled }}</div>
-      <div class="stat-label">Cancelled</div>
-    </div>
-  </div>
-</div>
+<!-- Toolbar -->
+<div class="sf-toolbar">
+  <form method="GET" class="sf-toolbar__search" role="search">
+    <span class="sf-toolbar__search-icon" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Search by sale # or customer…">
+  </form>
 
-<!-- Filter Bar -->
-<div class="filter-bar">
-  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
-    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
-      <span class="search-icon">🔍</span>
-      <input type="text" name="q" value="{{ q }}"
-             placeholder="Search by sale number or customer...">
-    </div>
-    <select name="status" class="form-control" style="width:160px;">
-      <option value="">All Status</option>
-      <option value="draft"     {% if status == 'draft'     %}selected{% endif %}>Draft</option>
-      <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmed</option>
-      <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-    </select>
-    <button type="submit" class="btn btn-secondary">Filter</button>
-    {% if q or status %}
-      <a href="{% url 'sales:sale_list' %}" class="btn btn-ghost">Clear</a>
-    {% endif %}
+  <select name="status" form="sf-status-filter-form" class="sf-select" style="max-width:170px;" onchange="this.form.submit()">
+    <option value="">All status</option>
+    <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+    <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+    <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+  </select>
+  <form id="sf-status-filter-form" method="GET" style="display:none;">
+    <input type="hidden" name="q" value="{{ q }}">
   </form>
 </div>
 
-<!-- Table -->
-<div class="card">
+<div class="sf-card">
   {% if page_obj.object_list %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Sale #</th>
             <th>Customer</th>
             <th>Items</th>
-            <th>Total</th>
+            <th class="right">Total</th>
             <th>Status</th>
-            <th>Created By</th>
+            <th>Created by</th>
             <th>Date</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for sale in page_obj %}
-          <tr>
-            <td>
-              <span class="sale-number">{{ sale.sale_number }}</span>
-            </td>
+          <tr data-href="{% url 'sales:sale_detail' sale.id %}">
+            <td><span class="sf-sale-number">{{ sale.sale_number }}</span></td>
             <td>
               <strong>{{ sale.customer_name }}</strong>
               {% if sale.customer_phone %}
-                <br><span class="text-muted" style="font-size:12px;">
-                  {{ sale.customer_phone }}
-                </span>
+                <div class="sf-small sf-num">{{ sale.customer_phone }}</div>
               {% endif %}
             </td>
-            <td>{{ sale.total_items }} item{{ sale.total_items|pluralize }}</td>
-            <td class="font-bold">KES {{ sale.total_amount|floatformat:2 }}</td>
+            <td class="sf-num">{{ sale.total_items }}</td>
+            <td class="right sf-num" style="font-weight:600;">
+              KES {{ sale.total_amount|floatformat:2 }}
+            </td>
             <td>
               {% if sale.status == 'confirmed' %}
-                <span class="badge badge-success">Confirmed</span>
+                <span class="sf-badge sf-badge--success">Confirmed</span>
               {% elif sale.status == 'draft' %}
-                <span class="badge badge-warning">Draft</span>
+                <span class="sf-badge sf-badge--warning">Draft</span>
               {% else %}
-                <span class="badge badge-danger">Cancelled</span>
+                <span class="sf-badge sf-badge--danger">Cancelled</span>
               {% endif %}
             </td>
-            <td>
-              {{ sale.created_by.get_full_name|default:sale.created_by.username|default:"—" }}
-            </td>
-            <td>{{ sale.created_at|date:"M d, Y" }}</td>
-            <td>
-              <div class="table-actions">
-                <a href="{% url 'sales:sale_detail' sale.id %}"
-                   class="btn btn-ghost btn-sm">View</a>
-                {% if sale.status == 'draft' %}
-                  <a href="{% url 'sales:edit_sale' sale.id %}"
-                     class="btn btn-secondary btn-sm">Edit</a>
-                {% endif %}
-              </div>
-            </td>
+            <td>{{ sale.created_by.get_full_name|default:sale.created_by.username|default:"—" }}</td>
+            <td class="sf-small sf-num">{{ sale.created_at|date:"M d, Y" }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% include 'components/pagination.html' %}
+    <div class="sf-card__footer">
+      {% include 'components/pagination.html' %}
+    </div>
   {% else %}
-    {% include 'components/empty_state.html' with
-       icon="🧾"
-       title="No sales found"
-       message="Create your first sale to start tracking revenue."
-       action_url="/sales/new/"
-       action_label="New Sale"
-    %}
+    {% include 'components/empty_state.html' with title="No sales found" message="Create your first sale to start tracking revenue." action_label="New sale" action_url="/sales/new/" %}
   {% endif %}
 </div>
 

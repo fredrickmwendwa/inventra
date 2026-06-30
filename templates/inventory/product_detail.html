@@ -1,108 +1,122 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ product.name }} — Inventra{% endblock %}
-{% block topbar_title %}Product Detail{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'inventory:product_list' %}">Products</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">{{ product.name }}</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'inventory:product_list' %}">Products</a>
-      <span class="separator">›</span>
-      <span>{{ product.name }}</span>
-    </div>
-    <h1>{{ product.name }}</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:edit_product' product.id %}" class="btn btn-primary">Edit Product</a>
-    <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">← Back</a>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div></div>
+  <div style="display:flex; gap:var(--space-3);">
+    <a href="{% url 'inventory:edit_product' product.id %}" class="sf-btn sf-btn--primary">
+      Edit product
+    </a>
+    <a href="{% url 'inventory:product_list' %}" class="sf-btn sf-btn--secondary">
+      ← Back
+    </a>
   </div>
 </div>
 
-<!-- Product Header Card -->
-<div class="product-detail-header">
-  {% if product.image %}
-    <img src="{{ product.image.url }}" class="product-detail-image" alt="{{ product.name }}">
-  {% else %}
-    <div class="product-detail-image-placeholder">📦</div>
-  {% endif %}
-
-  <div class="product-detail-info">
-    <h1>{{ product.name }}</h1>
-    <div class="sku">SKU: {{ product.sku|default:"Not set" }}</div>
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      {% if product.category %}
-        <span class="badge badge-primary">{{ product.category.name }}</span>
-      {% endif %}
-      {% if product.is_out_of_stock %}
-        <span class="badge badge-danger">Out of Stock</span>
-      {% elif product.is_low_stock %}
-        <span class="badge badge-warning">Low Stock</span>
-      {% elif product.is_active %}
-        <span class="badge badge-success">Active</span>
-      {% else %}
-        <span class="badge badge-neutral">Inactive</span>
-      {% endif %}
-    </div>
-
-    {% if product.description %}
-      <p style="margin-top:14px; color:var(--text-muted); font-size:13px; line-height:1.7;">
-        {{ product.description }}
-      </p>
-    {% endif %}
-
-    <!-- Stats Grid -->
-    <div class="product-meta-grid">
-      <div class="product-meta-item">
-        <div class="meta-value">KES {{ product.unit_price|floatformat:2 }}</div>
-        <div class="meta-label">Selling Price</div>
+<!-- Product hero -->
+<div class="sf-card sf-mb-4">
+  <div class="sf-card__body">
+    <div class="sf-product-hero">
+      <div class="sf-product-hero__image">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        {% endif %}
       </div>
-      <div class="product-meta-item">
-        <div class="meta-value">KES {{ product.cost_price|floatformat:2 }}</div>
-        <div class="meta-label">Cost Price</div>
-      </div>
-      <div class="product-meta-item">
-        <div class="meta-value {% if product.is_out_of_stock %}text-danger{% elif product.is_low_stock %}text-warning{% else %}text-success{% endif %}">
-          {{ product.stock_quantity }}
+
+      <div class="sf-product-hero__body">
+        <h1 class="sf-product-hero__title">{{ product.name }}</h1>
+        <div class="sf-product-hero__sku">SKU: {{ product.sku|default:"Not set" }}</div>
+
+        <div class="sf-product-hero__badges">
+          {% if product.category %}
+            <span class="sf-badge sf-badge--brand">{{ product.category.name }}</span>
+          {% endif %}
+          {% if product.is_out_of_stock %}
+            <span class="sf-badge sf-badge--danger">Out of stock</span>
+          {% elif product.is_low_stock %}
+            <span class="sf-badge sf-badge--warning">Low stock</span>
+          {% elif product.is_active %}
+            <span class="sf-badge sf-badge--success">Active</span>
+          {% else %}
+            <span class="sf-badge sf-badge--neutral">Inactive</span>
+          {% endif %}
         </div>
-        <div class="meta-label">In Stock</div>
-      </div>
-      <div class="product-meta-item">
-        <div class="meta-value">{{ product.profit_margin }}%</div>
-        <div class="meta-label">Margin</div>
+
+        {% if product.description %}
+          <p class="sf-product-hero__desc">{{ product.description }}</p>
+        {% endif %}
+
+        <div class="sf-product-metrics">
+          <div class="sf-product-metric">
+            <div class="sf-product-metric__value">KES {{ product.unit_price|floatformat:2 }}</div>
+            <div class="sf-product-metric__label">Sell price</div>
+          </div>
+          <div class="sf-product-metric">
+            <div class="sf-product-metric__value">KES {{ product.cost_price|floatformat:2 }}</div>
+            <div class="sf-product-metric__label">Cost price</div>
+          </div>
+          <div class="sf-product-metric">
+            <div class="sf-product-metric__value"
+                 style="{% if product.is_out_of_stock %}color:var(--color-danger);
+                        {% elif product.is_low_stock %}color:var(--color-accent-amber);
+                        {% else %}color:var(--color-brand-strong);{% endif %}">
+              {{ product.stock_quantity }}
+            </div>
+            <div class="sf-product-metric__label">In stock</div>
+          </div>
+          <div class="sf-product-metric">
+            <div class="sf-product-metric__value">{{ product.profit_margin }}%</div>
+            <div class="sf-product-metric__label">Margin</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Recent Stock Movements -->
-<div class="card">
-  <div class="card-header">
+<!-- Recent movements -->
+<div class="sf-card">
+  <div class="sf-card__header">
     <div>
-      <h2>Recent Stock Movements</h2>
-      <p>Last 10 movements for this product</p>
+      <h2 class="sf-card-title">Recent stock movements</h2>
+      <p class="sf-small" style="margin-top:2px;">Last 10 movements for this product</p>
     </div>
-    <a href="{% url 'inventory:add_stock_movement' %}" class="btn btn-secondary btn-sm">
-      + Record Movement
+    <a href="{% url 'inventory:add_stock_movement' %}" class="sf-btn sf-btn--secondary sf-btn--sm">
+      + Record movement
     </a>
   </div>
 
   {% if movements %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Type</th>
-            <th>Quantity</th>
+            <th class="right">Quantity</th>
             <th>Notes</th>
-            <th>Recorded By</th>
+            <th>Recorded by</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -110,32 +124,28 @@
           {% for movement in movements %}
           <tr>
             <td>
-              <span class="movement-type-badge movement-{{ movement.movement_type }}">
-                {% if movement.movement_type == 'in' %}↑ Stock In
-                {% elif movement.movement_type == 'out' %}↓ Stock Out
-                {% else %}⇄ Adjustment
-                {% endif %}
+              <span class="sf-movement-badge sf-movement-badge--{{ movement.movement_type }}">
+                {% if movement.movement_type == 'in' %}↑ In
+                {% elif movement.movement_type == 'out' %}↓ Out
+                {% else %}⇄ Adjustment{% endif %}
               </span>
             </td>
-            <td>
-              {% if movement.movement_type == 'in' %}
-                <span class="qty-positive">+{{ movement.quantity }}</span>
-              {% elif movement.movement_type == 'out' %}
-                <span class="qty-negative">-{{ movement.quantity }}</span>
-              {% else %}
-                <span class="qty-neutral">{{ movement.quantity }}</span>
-              {% endif %}
+            <td class="right sf-num" style="font-weight:600;
+              {% if movement.movement_type == 'in' %}color:var(--color-brand-strong);
+              {% elif movement.movement_type == 'out' %}color:var(--color-danger);
+              {% else %}color:var(--color-accent-amber);{% endif %}">
+              {% if movement.movement_type == 'in' %}+{% elif movement.movement_type == 'out' %}-{% endif %}{{ movement.quantity }}
             </td>
-            <td>{{ movement.notes|default:"—" }}</td>
+            <td class="sf-small">{{ movement.notes|default:"—" }}</td>
             <td>{{ movement.created_by.get_full_name|default:movement.created_by.username|default:"—" }}</td>
-            <td>{{ movement.created_at|date:"M d, Y H:i" }}</td>
+            <td class="sf-small sf-num">{{ movement.created_at|date:"M d, Y H:i" }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   {% else %}
-    {% include 'components/empty_state.html' with icon="📊" title="No movements yet" message="Stock changes will appear here." %}
+    {% include 'components/empty_state.html' with title="No movements yet" message="Stock changes for this product will appear here." %}
   {% endif %}
 </div>
 

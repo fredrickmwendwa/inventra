@@ -1,146 +1,134 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ supplier.name }} — Inventra{% endblock %}
-{% block topbar_title %}Supplier Detail{% endblock %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/suppliers.css' %}">
+{% block title %}{{ supplier.name }}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">{{ supplier.name }}</span>
+</nav>
 {% endblock %}
 
 {% block content %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
-      <span class="separator">›</span>
-      <span>{{ supplier.name }}</span>
+<!-- Detail header -->
+<div class="sf-detail-header">
+  <div class="sf-detail-header__identity">
+    <div class="sf-detail-header__swatch sf-swatch-2">
+      {{ supplier.name|first|upper }}
     </div>
-    <h1>{{ supplier.name }}</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-secondary">← Back</a>
-  </div>
-</div>
-
-<!-- Supplier Header Card -->
-<div class="supplier-detail-header">
-  <div class="supplier-header-top">
-
-    <!-- Left: avatar + name -->
-    <div class="supplier-header-left">
-      <div class="supplier-big-avatar">
-        {{ supplier.name|first|upper }}
-      </div>
-      <div class="supplier-header-info">
-        <h1>{{ supplier.name }}</h1>
-        <div class="supplier-since">
-          Added on {{ supplier.created_at|date:"F d, Y" }}
-        </div>
-        <div style="margin-top:10px;">
-          {% if supplier.is_active %}
-            <span class="badge badge-success">Active Supplier</span>
-          {% else %}
-            <span class="badge badge-danger">Inactive</span>
-          {% endif %}
-        </div>
+    <div>
+      <h1 class="sf-detail-header__title">{{ supplier.name }}</h1>
+      <div class="sf-detail-header__meta">
+        <span>Added {{ supplier.created_at|date:"F d, Y" }}</span>
+        {% if supplier.is_active %}
+          <span class="sf-badge sf-badge--success">Active</span>
+        {% else %}
+          <span class="sf-badge sf-badge--danger">Inactive</span>
+        {% endif %}
       </div>
     </div>
-
-    <!-- Right: action buttons -->
-    <div class="supplier-header-actions">
-      <a href="{% url 'suppliers:edit_supplier' supplier.id %}"
-         class="btn btn-primary btn-sm">Edit</a>
-
-      <a href="{% url 'suppliers:toggle_status' supplier.id %}"
-         class="btn btn-sm {% if supplier.is_active %}btn-toggle-active{% else %}btn-toggle-inactive{% endif %}"
-         data-confirm="{% if supplier.is_active %}Deactivate {{ supplier.name }}?{% else %}Activate {{ supplier.name }}?{% endif %}">
-        {% if supplier.is_active %}Deactivate{% else %}Activate{% endif %}
-      </a>
-
-      <a href="{% url 'suppliers:delete_supplier' supplier.id %}"
-         class="btn btn-danger btn-sm"
-         data-confirm="Delete supplier '{{ supplier.name }}'? This cannot be undone.">
-        Delete
-      </a>
-    </div>
-
   </div>
 
-  <!-- Contact Info -->
-  <div class="contact-grid">
-
-    <div class="contact-item">
-      <div class="contact-icon">📞</div>
-      <div class="contact-text">
-        <div class="contact-label">Phone</div>
-        <div class="contact-value">{{ supplier.phone|default:"Not provided" }}</div>
-      </div>
-    </div>
-
-    <div class="contact-item">
-      <div class="contact-icon">✉️</div>
-      <div class="contact-text">
-        <div class="contact-label">Email</div>
-        <div class="contact-value">
-          {% if supplier.email %}
-            <a href="mailto:{{ supplier.email }}"
-               style="color:var(--primary-light);">
-              {{ supplier.email }}
-            </a>
-          {% else %}
-            Not provided
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <div class="contact-item">
-      <div class="contact-icon">📍</div>
-      <div class="contact-text">
-        <div class="contact-label">Address</div>
-        <div class="contact-value">{{ supplier.address|default:"Not provided" }}</div>
-      </div>
-    </div>
-
+  <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+    <a href="{% url 'suppliers:edit_supplier' supplier.id %}" class="sf-btn sf-btn--primary sf-btn--sm">
+      Edit
+    </a>
+    <a href="{% url 'suppliers:toggle_status' supplier.id %}"
+       class="sf-btn sf-btn--secondary sf-btn--sm"
+       data-confirm="{% if supplier.is_active %}Deactivate {{ supplier.name }}?{% else %}Activate {{ supplier.name }}?{% endif %}">
+      {% if supplier.is_active %}Deactivate{% else %}Activate{% endif %}
+    </a>
+    <a href="{% url 'suppliers:delete_supplier' supplier.id %}"
+       class="sf-btn sf-btn--danger sf-btn--sm"
+       data-confirm="Delete supplier '{{ supplier.name }}'? This cannot be undone.">
+      Delete
+    </a>
   </div>
 </div>
 
-<!-- Notes Card -->
+<!-- Contact info -->
+<div class="sf-card sf-mb-4">
+  <div class="sf-card__header">
+    <h2 class="sf-card-title">Contact information</h2>
+  </div>
+  <div class="sf-card__body">
+    <div class="sf-customer-strip" style="border-top:none; padding-top:0;">
+      <div class="sf-customer-item">
+        <div class="sf-customer-item__icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.68 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sf-customer-item__label">Phone</div>
+          <div class="sf-customer-item__value sf-num">{{ supplier.phone|default:"Not provided" }}</div>
+        </div>
+      </div>
+      <div class="sf-customer-item">
+        <div class="sf-customer-item__icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M2 7l10 6 10-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sf-customer-item__label">Email</div>
+          <div class="sf-customer-item__value">
+            {% if supplier.email %}
+              <a href="mailto:{{ supplier.email }}" style="color:var(--color-brand-strong);">{{ supplier.email }}</a>
+            {% else %}Not provided{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="sf-customer-item">
+        <div class="sf-customer-item__icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sf-customer-item__label">Address</div>
+          <div class="sf-customer-item__value">{{ supplier.address|default:"Not provided" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% if supplier.notes %}
-<div class="notes-card">
-  <h3>📋 Notes</h3>
-  <p>{{ supplier.notes }}</p>
+<div class="sf-card sf-mb-4">
+  <div class="sf-card__header">
+    <h2 class="sf-card-title">Notes</h2>
+  </div>
+  <div class="sf-card__body">
+    <p class="sf-body" style="margin:0;">{{ supplier.notes }}</p>
+  </div>
 </div>
 {% endif %}
 
-<!-- Meta Info Card -->
-<div class="card">
-  <div class="card-header">
-    <div>
-      <h2>Supplier Record</h2>
-      <p>Timeline and metadata</p>
-    </div>
+<!-- Record metadata -->
+<div class="sf-card">
+  <div class="sf-card__header">
+    <h2 class="sf-card-title">Supplier record</h2>
   </div>
-  <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; padding:8px 0;">
-    <div>
-      <div style="font-size:11px; font-weight:700; text-transform:uppercase;
-                  letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">
-        Date Added
+  <div class="sf-card__body">
+    <div class="sf-form-grid-2">
+      <div>
+        <div class="sf-eyebrow">Date added</div>
+        <div style="font-size:var(--text-body); color:var(--color-ink); font-weight:500; margin-top:var(--space-1);">
+          {{ supplier.created_at|date:"F d, Y \a\t H:i" }}
+        </div>
       </div>
-      <div style="font-size:14px; color:var(--text); font-weight:500;">
-        {{ supplier.created_at|date:"F d, Y \a\t H:i" }}
-      </div>
-    </div>
-    <div>
-      <div style="font-size:11px; font-weight:700; text-transform:uppercase;
-                  letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">
-        Last Updated
-      </div>
-      <div style="font-size:14px; color:var(--text); font-weight:500;">
-        {{ supplier.updated_at|date:"F d, Y \a\t H:i" }}
+      <div>
+        <div class="sf-eyebrow">Last updated</div>
+        <div style="font-size:var(--text-body); color:var(--color-ink); font-weight:500; margin-top:var(--space-1);">
+          {{ supplier.updated_at|date:"F d, Y \a\t H:i" }}
+        </div>
       </div>
     </div>
   </div>

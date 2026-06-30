@@ -1,0 +1,205 @@
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sf-sidebar" id="sfSidebar" aria-label="Primary navigation">
+
+      <!-- Letterhead — business name like a ledger spine -->
+      <div class="sf-sidebar__letterhead">
+        <div class="sf-sidebar__mark" aria-hidden="true">
+          {{ tenant.name|first|upper|default:"I" }}
+        </div>
+        <div class="sf-sidebar__business">
+          <div class="sf-sidebar__business-name">
+            {{ tenant.name|default:"Inventra" }}
+          </div>
+          <div class="sf-sidebar__business-sub">Workspace</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sf-sidebar__nav" aria-label="Main navigation">
+
+        <!-- Overview -->
+        <div class="sf-nav-group">
+          <div class="sf-nav-group__label">Overview</div>
+
+          <a href="{% url 'dashboard:home' %}"
+             class="sf-nav-link"
+             data-tooltip="Dashboard"
+             aria-label="Dashboard">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Dashboard</span>
+          </a>
+        </div>
+
+        <!-- Inventory -->
+        <div class="sf-nav-group">
+          <div class="sf-nav-group__label">Inventory</div>
+
+          <a href="{% url 'inventory:product_list' %}"
+             class="sf-nav-link"
+             data-tooltip="Products"
+             aria-label="Products">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                      stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Products</span>
+            {% if low_stock and low_stock|length > 0 %}
+              <span class="sf-nav-link__badge">{{ low_stock|length }}</span>
+            {% endif %}
+          </a>
+
+          <a href="{% url 'inventory:category_list' %}"
+             class="sf-nav-link"
+             data-tooltip="Categories"
+             aria-label="Categories">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"
+                      stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Categories</span>
+          </a>
+
+          <a href="{% url 'inventory:stock_movements' %}"
+             class="sf-nav-link"
+             data-tooltip="Stock Movements"
+             aria-label="Stock Movements">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+                      stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                <path d="M3.27 6.96L12 12l8.73-5.04M12 22.08V12"
+                      stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Stock Movements</span>
+          </a>
+        </div>
+
+        <!-- Sales -->
+        <div class="sf-nav-group">
+          <div class="sf-nav-group__label">Sales</div>
+
+          <a href="{% url 'sales:sale_list' %}"
+             class="sf-nav-link"
+             data-tooltip="Sales"
+             aria-label="Sales">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="9" cy="21" r="1.4" fill="currentColor"/>
+                <circle cx="19" cy="21" r="1.4" fill="currentColor"/>
+                <path d="M1 1h3l2.6 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L22 6H6"
+                      stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Sales</span>
+          </a>
+        </div>
+
+        <!-- People -->
+        <div class="sf-nav-group">
+          <div class="sf-nav-group__label">People</div>
+
+          <a href="{% url 'suppliers:supplier_list' %}"
+             class="sf-nav-link"
+             data-tooltip="Suppliers"
+             aria-label="Suppliers">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"
+                      stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Suppliers</span>
+          </a>
+
+          <a href="{% url 'accounts:staff_list' %}"
+             class="sf-nav-link"
+             data-tooltip="Staff"
+             aria-label="Staff">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"
+                      stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Staff</span>
+          </a>
+        </div>
+
+        <!-- Account -->
+        <div class="sf-nav-group">
+          <div class="sf-nav-group__label">Account</div>
+
+          <a href="{% url 'accounts:profile' %}"
+             class="sf-nav-link"
+             data-tooltip="Profile"
+             aria-label="Profile">
+            <span class="sf-nav-link__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M4 20a8 8 0 0116 0"
+                      stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="sf-nav-link__label">Profile</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <!-- User block -->
+      <div class="sf-sidebar__user" aria-label="User account">
+        {% if user_profile and user_profile.avatar %}
+          <img src="{{ user_profile.avatar.url }}"
+               alt="{{ request.user.get_full_name }}"
+               class="sf-sidebar__user-avatar"
+               style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+        {% else %}
+          <div class="sf-sidebar__user-avatar" aria-hidden="true">
+            {{ request.user.first_name|first|upper }}
+          </div>
+        {% endif %}
+        <div class="sf-sidebar__user-info">
+          <div class="sf-sidebar__user-name">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+          <div class="sf-sidebar__user-role">
+            {{ user_profile.role|default:"staff" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapse button -->
+      <div class="sf-sidebar__footer">
+        <button type="button"
+                class="sf-sidebar__collapse-btn"
+                data-sidebar-collapse
+                aria-label="Collapse sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 5l7 7-7 7"
+                  stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 5l7 7-7 7"
+                  stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+          </svg>
+        </button>
+      </div>
+
+    </aside>

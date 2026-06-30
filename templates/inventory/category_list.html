@@ -1,55 +1,81 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Categories — Inventra{% endblock %}
-{% block topbar_title %}Categories{% endblock %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% block title %}Categories{% endblock %}
+
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Categories</span>
+</nav>
 {% endblock %}
 
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Categories</span>
-    </div>
-    <h1>Categories</h1>
-    <p>Organise your products into categories</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Categories</h1>
+    <p class="sf-body" style="margin-top:4px;">
+      {{ categories.count }} categor{{ categories.count|pluralize:"y,ies" }} organizing your catalog.
+    </p>
   </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:add_category' %}" class="btn btn-primary">+ Add Category</a>
-  </div>
+  <a href="{% url 'inventory:add_category' %}" class="sf-btn sf-btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    New category
+  </a>
 </div>
 
 {% if categories %}
-  <div class="category-grid">
+  <div class="sf-category-grid">
     {% for category in categories %}
-    <div class="category-card">
-      <div class="category-icon">🏷️</div>
-      <h3>{{ category.name }}</h3>
-      <p>{{ category.description|default:"No description provided." }}</p>
-      <div class="category-footer">
-        <span class="category-count">
-          {{ category.product_count }} product{{ category.product_count|pluralize }}
-        </span>
-        <div class="category-actions">
-          <a href="{% url 'inventory:edit_category' category.id %}"
-             class="btn btn-ghost btn-sm">Edit</a>
-          <a href="{% url 'inventory:delete_category' category.id %}"
-             class="btn btn-danger btn-sm"
-             data-confirm="Delete category '{{ category.name }}'? Products in this category will become uncategorised.">
-            Delete
-          </a>
+      <div class="sf-category-card" style="cursor:default;" onclick="window.location='{% url 'inventory:edit_category' category.id %}'">
+        <div class="sf-category-card__top">
+          <div class="sf-category-card__swatch sf-swatch-{{ forloop.counter0|add:1 }}">
+            {{ category.name|slice:":1"|upper }}
+          </div>
+          <button type="button"
+                  class="sf-category-card__menu-btn"
+                  aria-label="More options"
+                  data-dropdown-trigger="cat-menu-{{ category.id }}"
+                  onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="5" r="1.6" fill="currentColor"/>
+              <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+              <circle cx="12" cy="19" r="1.6" fill="currentColor"/>
+            </svg>
+          </button>
+          <div class="sf-dropdown" id="cat-menu-{{ category.id }}" role="menu">
+            <a href="{% url 'inventory:edit_category' category.id %}" class="sf-dropdown__item" role="menuitem">
+              Edit category
+            </a>
+            <div class="sf-dropdown__divider"></div>
+            <a href="{% url 'inventory:delete_category' category.id %}"
+               class="sf-dropdown__item sf-dropdown__item--danger" role="menuitem"
+               data-confirm="Delete category '{{ category.name }}'? Products will become uncategorised.">
+              Delete category
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 class="sf-category-card__name">{{ category.name }}</h3>
+          <p class="sf-category-card__desc">{{ category.description|default:"No description added yet." }}</p>
+        </div>
+        <div class="sf-category-card__footer">
+          <span class="sf-category-card__count">
+            {{ category.product_count }} <span class="sf-category-card__count-label">products</span>
+          </span>
+          {% if category.product_count == 0 %}
+            <span class="sf-badge sf-badge--neutral">Empty</span>
+          {% endif %}
         </div>
       </div>
-    </div>
     {% endfor %}
   </div>
 {% else %}
-  <div class="card">
-    {% include 'components/empty_state.html' with icon="🏷️" title="No categories yet" message="Create your first category to organise your products." action_url="/inventory/categories/add/" action_label="Add Category" %}
+  <div class="sf-card">
+    {% include 'components/empty_state.html' with title="No categories yet" message="Group your products into categories like Beverages, Snacks, or Hardware — it makes the catalog easier to browse and manage." action_label="Create your first category" action_url="/inventory/categories/add/" %}
   </div>
 {% endif %}
 

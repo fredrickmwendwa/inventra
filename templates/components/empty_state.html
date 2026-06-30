@@ -1,8 +1,21 @@
-<div class="empty-state">
-  <div class="empty-icon">{{ icon|default:"📭" }}</div>
-  <h3>{{ title|default:"Nothing here yet" }}</h3>
-  <p>{{ message|default:"Get started by adding your first item." }}</p>
-  {% if action_url and action_label %}
-    <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>
+<div class="sf-empty">
+  <div class="sf-empty__icon" aria-hidden="true">
+    {% if icon_svg %}
+      {{ icon_svg|safe }}
+    {% else %}
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M21 8L12 3 3 8m18 0l-9 5-9-5m18 0v8l-9 5-9-5V8"
+              stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+    {% endif %}
+  </div>
+  <h3 class="sf-empty__title">{{ title|default:"Nothing here yet" }}</h3>
+  <p class="sf-empty__message">
+    {{ message|default:"Records will appear here once you add them." }}
+  </p>
+  {% if action_label and action_url %}
+    <a href="{{ action_url }}" class="sf-btn sf-btn--primary">
+      {{ action_label }}
+    </a>
   {% endif %}
 </div>

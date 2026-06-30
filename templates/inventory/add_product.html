@@ -1,142 +1,138 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Add Product — Inventra{% endblock %}
-{% block topbar_title %}Add Product{% endblock %}
+{% block title %}Add Product{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
 {% endblock %}
 
-{% block content %}
-
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'inventory:product_list' %}">Products</a>
-      <span class="separator">›</span>
-      <span>Add</span>
-    </div>
-    <h1>Add Product</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">← Back</a>
-  </div>
-</div>
-
-<div class="form-card">
-  <div class="card-header">
-    <div><h2>Product Information</h2><p>Fill in the details below</p></div>
-  </div>
-
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    <div class="form-grid-2">
-      <div class="form-group form-full">
-        <label>Product Name <span class="required">*</span></label>
-        <input type="text" name="name"
-               value="{{ form.name.value|default:'' }}"
-               class="form-control" placeholder="Product name">
-        {% if form.name.errors %}<span class="field-error">{{ form.name.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>SKU</label>
-        <input type="text" name="sku"
-               value="{{ form.sku.value|default:'' }}"
-               class="form-control" placeholder="e.g. PROD-001">
-        {% if form.sku.errors %}<span class="field-error">{{ form.sku.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>Category</label>
-        <select name="category" class="form-control">
-          <option value="">No Category</option>
-          {% for cat in form.fields.category.queryset %}
-            <option value="{{ cat.id }}" {% if form.category.value|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
-              {{ cat.name }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group form-full">
-        <label>Description</label>
-        <textarea name="description" class="form-control"
-                  rows="3" placeholder="Product description">{{ form.description.value|default:'' }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Selling Price (KES) <span class="required">*</span></label>
-        <input type="number" name="unit_price"
-               value="{{ form.unit_price.value|default:'0' }}"
-               class="form-control" step="0.01" min="0">
-        {% if form.unit_price.errors %}<span class="field-error">{{ form.unit_price.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>Cost Price (KES)</label>
-        <input type="number" name="cost_price"
-               value="{{ form.cost_price.value|default:'0' }}"
-               class="form-control" step="0.01" min="0">
-        {% if form.cost_price.errors %}<span class="field-error">{{ form.cost_price.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>Opening Stock Quantity <span class="required">*</span></label>
-        <input type="number" name="stock_quantity"
-               value="{{ form.stock_quantity.value|default:'0' }}"
-               class="form-control" min="0">
-        {% if form.stock_quantity.errors %}<span class="field-error">{{ form.stock_quantity.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label>Reorder Level</label>
-        <input type="number" name="reorder_level"
-               value="{{ form.reorder_level.value|default:'10' }}"
-               class="form-control" min="0">
-        <p class="form-help">Get a warning when stock falls to this level</p>
-      </div>
-
-      <div class="form-group form-full">
-        <label>Product Image</label>
-        <input type="file" name="image" accept="image/*" id="productImageInput">
-        <div class="image-preview-wrapper">
-          <img id="productImagePreview" class="image-preview" src="" alt="Preview">
-        </div>
-        {% if form.image.errors %}<span class="field-error">{{ form.image.errors|join:", " }}</span>{% endif %}
-      </div>
-
-      <div class="form-group">
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-          <input type="checkbox" name="is_active"
-                 {% if form.is_active.value != False %}checked{% endif %}
-                 style="width:16px;height:16px;">
-          Active (visible and available for sale)
-        </label>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="flex gap-12">
-      <button type="submit" class="btn btn-primary">Save Product</button>
-      <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary">Cancel</a>
-    </div>
-  </form>
-</div>
-
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'inventory:product_list' %}">Products</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Add</span>
+</nav>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-  document.getElementById('productImageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const preview = document.getElementById('productImagePreview');
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-    }
-  });
-</script>
+{% block content %}
+
+<div style="max-width:760px;">
+
+  <h1 class="sf-page-title sf-mb-4">Add product</h1>
+
+  <form method="POST" enctype="multipart/form-data" class="sf-card" novalidate>
+    {% csrf_token %}
+    <div class="sf-card__body">
+
+      <div class="sf-form-grid-2">
+
+        <div class="sf-field sf-form-full">
+          <label class="sf-label" for="id_name">
+            Product name <span class="sf-label__required">*</span>
+          </label>
+          <input class="sf-input {% if form.name.errors %}has-error{% endif %}"
+                 type="text" id="id_name" name="name"
+                 value="{{ form.name.value|default:'' }}"
+                 placeholder="e.g. Maize Flour 2kg" autofocus>
+          {% if form.name.errors %}
+            <p class="sf-error-text">{{ form.name.errors|join:" " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_sku">
+            SKU <span class="sf-label__optional">(optional)</span>
+          </label>
+          <input class="sf-input sf-num" type="text" id="id_sku" name="sku"
+                 value="{{ form.sku.value|default:'' }}" placeholder="PROD-001">
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_category">Category</label>
+          <select class="sf-select" id="id_category" name="category">
+            <option value="">No category</option>
+            {% for cat in form.fields.category.queryset %}
+              <option value="{{ cat.id }}"
+                {% if form.category.value|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="sf-field sf-form-full">
+          <label class="sf-label" for="id_description">
+            Description <span class="sf-label__optional">(optional)</span>
+          </label>
+          <textarea class="sf-textarea" id="id_description" name="description"
+                    rows="3" placeholder="Product description">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_unit_price">
+            Selling price (KES) <span class="sf-label__required">*</span>
+          </label>
+          <input class="sf-input sf-num {% if form.unit_price.errors %}has-error{% endif %}"
+                 type="number" id="id_unit_price" name="unit_price"
+                 value="{{ form.unit_price.value|default:'0' }}" step="0.01" min="0">
+          {% if form.unit_price.errors %}
+            <p class="sf-error-text">{{ form.unit_price.errors|join:" " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_cost_price">Cost price (KES)</label>
+          <input class="sf-input sf-num" type="number" id="id_cost_price" name="cost_price"
+                 value="{{ form.cost_price.value|default:'0' }}" step="0.01" min="0">
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_stock_quantity">
+            Opening stock quantity <span class="sf-label__required">*</span>
+          </label>
+          <input class="sf-input sf-num {% if form.stock_quantity.errors %}has-error{% endif %}"
+                 type="number" id="id_stock_quantity" name="stock_quantity"
+                 value="{{ form.stock_quantity.value|default:'0' }}" min="0">
+          {% if form.stock_quantity.errors %}
+            <p class="sf-error-text">{{ form.stock_quantity.errors|join:" " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="sf-field">
+          <label class="sf-label" for="id_reorder_level">Reorder level</label>
+          <input class="sf-input sf-num" type="number" id="id_reorder_level" name="reorder_level"
+                 value="{{ form.reorder_level.value|default:'10' }}" min="0">
+          <p class="sf-help-text">Get a low-stock alert when stock falls to this level.</p>
+        </div>
+
+        <div class="sf-field sf-form-full">
+          <label class="sf-label" for="id_image">
+            Product image <span class="sf-label__optional">(optional)</span>
+          </label>
+          <input class="sf-input" type="file" id="id_image" name="image" accept="image/*"
+                 data-image-input="product-image-preview">
+          <img id="product-image-preview" class="sf-image-preview" alt="Preview">
+        </div>
+
+        <div class="sf-field sf-form-full">
+          <label class="sf-checkbox-label">
+            <input type="checkbox" name="is_active"
+                   {% if form.is_active.value != False %}checked{% endif %}>
+            Active — visible and available for sale
+          </label>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="sf-card__footer sf-flex sf-justify-between">
+      <a href="{% url 'inventory:product_list' %}" class="sf-btn sf-btn--secondary">Cancel</a>
+      <button type="submit" class="sf-btn sf-btn--primary">Save product</button>
+    </div>
+  </form>
+
+</div>
+
 {% endblock %}

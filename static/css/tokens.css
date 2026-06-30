@@ -1,0 +1,152 @@
+/* ============================================================
+   INVENTRA DESIGN SYSTEM — TOKENS
+   ------------------------------------------------------------
+   Identity: a ledger, not a dashboard. Inventra is used at a
+   counter, mid-interruption, by someone counting real things.
+   The palette is earthy and working, not neon-on-black SaaS.
+   Display type is a warm serif used only for titles — body
+   and data stay in Inter / IBM Plex Mono so numbers read as
+   counted, not decorated.
+   ============================================================ */
+
+:root {
+  /* ── COLOUR — LIGHT (default) ── */
+  --color-bg:            #F7F8F4;   /* warm paper, not cold white */
+  --color-bg-raised:     #FFFFFF;
+  --color-bg-sunken:     #EEF0EA;
+  --color-border:        #DDE1D9;
+  --color-border-strong: #C7CCC1;
+
+  --color-ink:           #0B0F0D;   /* near-black, green undertone */
+  --color-ink-soft:      #3A4440;
+  --color-ink-faint:     #5C6B66;   /* sage-grey secondary text */
+
+  --color-brand:         #2D6A4F;   /* Inventra green */
+  --color-brand-strong:  #1F4D38;
+  --color-brand-soft:    #E4EFE8;
+
+  --color-accent-amber:      #E8A33D;   /* pending / warning */
+  --color-accent-amber-soft: #FBF0DC;
+
+  --color-danger:        #B23A2E;   /* low stock / errors — terracotta */
+  --color-danger-soft:   #F7E6E2;
+
+  --color-success:       #2D6A4F;
+  --color-success-soft:  #E4EFE8;
+
+  --color-info:          #2B5B73;
+  --color-info-soft:     #E3EDF1;
+
+  --color-overlay:       rgba(11, 15, 13, 0.48);
+
+  /* ── TYPOGRAPHY ── */
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+  --text-display-l: 2.75rem;    /* hero numbers, rare */
+  --text-display:   2rem;       /* page titles */
+  --text-title:     1.375rem;   /* section / card titles */
+  --text-subtitle:  1.0625rem;
+  --text-body:      0.9375rem;
+  --text-small:     0.8125rem;
+  --text-micro:     0.6875rem;
+
+  --leading-tight:  1.15;
+  --leading-snug:   1.35;
+  --leading-normal: 1.55;
+
+  --tracking-wide:  0.04em;
+  --tracking-wider: 0.08em;
+
+  /* ── SPACING (4 px base) ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* ── RADIUS ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-full: 999px;
+
+  /* ── SHADOW — soft, low elevation (paper, not glass) ── */
+  --shadow-xs:    0 1px 2px  rgba(11, 15, 13, 0.04);
+  --shadow-sm:    0 2px 6px  rgba(11, 15, 13, 0.06);
+  --shadow-md:    0 8px 24px rgba(11, 15, 13, 0.08);
+  --shadow-lg:    0 16px 40px rgba(11, 15, 13, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(45, 106, 79, 0.35);
+
+  /* ── MOTION ── */
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast:  120ms;
+  --duration-base:  200ms;
+  --duration-slow:  320ms;
+
+  /* ── LAYOUT ── */
+  --sidebar-w:           264px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h:            64px;
+  --content-max:         1320px;
+
+  /* ── Z-INDEX ── */
+  --z-sidebar:  100;
+  --z-topbar:    90;
+  --z-dropdown: 200;
+  --z-modal:    300;
+  --z-toast:    400;
+}
+
+/* ── DARK MODE — first class, not an afterthought ── */
+[data-theme='dark'] {
+  --color-bg:            #0E1310;
+  --color-bg-raised:     #161D19;
+  --color-bg-sunken:     #0A0E0C;
+  --color-border:        #2A332E;
+  --color-border-strong: #3A453E;
+
+  --color-ink:           #E8EAE5;
+  --color-ink-soft:      #C2C8C0;
+  --color-ink-faint:     #8A958E;
+
+  --color-brand:         #4E9774;
+  --color-brand-strong:  #6BB290;
+  --color-brand-soft:    #16291F;
+
+  --color-accent-amber:      #EFB85C;
+  --color-accent-amber-soft: #2E2310;
+
+  --color-danger:        #D9695A;
+  --color-danger-soft:   #2E1714;
+
+  --color-success:       #4E9774;
+  --color-success-soft:  #16291F;
+
+  --color-info:          #5B9AB8;
+  --color-info-soft:     #142733;
+
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  --shadow-xs: 0 1px 2px  rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 2px 8px  rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.55);
+}
+
+/* Respect reduced motion universally */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1     !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior: auto           !important;
+  }
+}

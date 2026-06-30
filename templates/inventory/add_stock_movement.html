@@ -1,94 +1,87 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Record Stock Movement — Inventra{% endblock %}
-{% block topbar_title %}Record Stock Movement{% endblock %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% block title %}Record Stock Movement{% endblock %}
+
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'inventory:stock_movements' %}">Stock Movements</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Record</span>
+</nav>
 {% endblock %}
 
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'inventory:stock_movements' %}">Stock Movements</a>
-      <span class="separator">›</span>
-      <span>Record</span>
-    </div>
-    <h1>Record Stock Movement</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:stock_movements' %}" class="btn btn-secondary">← Back</a>
-  </div>
-</div>
+<div style="max-width:560px;">
 
-<div class="form-card" style="max-width:580px;">
-  <div class="card-header">
-    <div>
-      <h2>Movement Details</h2>
-      <p>Record stock in, out or an adjustment</p>
-    </div>
-  </div>
+  <h1 class="sf-page-title sf-mb-4">Record stock movement</h1>
 
-  <form method="POST">
+  <form method="POST" class="sf-card" novalidate>
     {% csrf_token %}
+    <div class="sf-card__body">
 
-    <div class="form-group">
-      <label>Product <span class="required">*</span></label>
-      <select name="product" class="form-control">
-        <option value="">Select a product</option>
-        {% for product in form.fields.product.queryset %}
-          <option value="{{ product.id }}"
-            {% if form.product.value|stringformat:"s" == product.id|stringformat:"s" %}selected{% endif %}>
-            {{ product.name }} (Stock: {{ product.stock_quantity }})
-          </option>
-        {% endfor %}
-      </select>
-      {% if form.product.errors %}
-        <span class="field-error">{{ form.product.errors|join:", " }}</span>
-      {% endif %}
+      <div class="sf-field">
+        <label class="sf-label" for="id_product">
+          Product <span class="sf-label__required">*</span>
+        </label>
+        <select class="sf-select {% if form.product.errors %}has-error{% endif %}" id="id_product" name="product">
+          <option value="">Select a product…</option>
+          {% for product in form.fields.product.queryset %}
+            <option value="{{ product.id }}"
+              {% if form.product.value|stringformat:"s" == product.id|stringformat:"s" %}selected{% endif %}>
+              {{ product.name }} (Stock: {{ product.stock_quantity }})
+            </option>
+          {% endfor %}
+        </select>
+        {% if form.product.errors %}
+          <p class="sf-error-text">{{ form.product.errors|join:" " }}</p>
+        {% endif %}
+      </div>
+
+      <div class="sf-field">
+        <label class="sf-label" for="id_movement_type">
+          Movement type <span class="sf-label__required">*</span>
+        </label>
+        <select class="sf-select" id="id_movement_type" name="movement_type">
+          {% for value, label in form.fields.movement_type.choices %}
+            <option value="{{ value }}" {% if form.movement_type.value == value %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="sf-field">
+        <label class="sf-label" for="id_quantity">
+          Quantity <span class="sf-label__required">*</span>
+        </label>
+        <input class="sf-input sf-num {% if form.quantity.errors %}has-error{% endif %}"
+               type="number" id="id_quantity" name="quantity"
+               value="{{ form.quantity.value|default:'' }}"
+               placeholder="Enter quantity" min="1">
+        <p class="sf-help-text">For adjustment, enter the new total stock level.</p>
+        {% if form.quantity.errors %}
+          <p class="sf-error-text">{{ form.quantity.errors|join:" " }}</p>
+        {% endif %}
+      </div>
+
+      <div class="sf-field" style="margin-bottom:0;">
+        <label class="sf-label" for="id_notes">
+          Notes <span class="sf-label__optional">(optional)</span>
+        </label>
+        <textarea class="sf-textarea" id="id_notes" name="notes"
+                  rows="3" placeholder="Reason for this movement">{{ form.notes.value|default:'' }}</textarea>
+      </div>
+
     </div>
-
-    <div class="form-group">
-      <label>Movement Type <span class="required">*</span></label>
-      <select name="movement_type" class="form-control">
-        {% for value, label in form.fields.movement_type.choices %}
-          <option value="{{ value }}"
-            {% if form.movement_type.value == value %}selected{% endif %}>
-            {{ label }}
-          </option>
-        {% endfor %}
-      </select>
-      {% if form.movement_type.errors %}
-        <span class="field-error">{{ form.movement_type.errors|join:", " }}</span>
-      {% endif %}
-    </div>
-
-    <div class="form-group">
-      <label>Quantity <span class="required">*</span></label>
-      <input type="number" name="quantity"
-             value="{{ form.quantity.value|default:'' }}"
-             class="form-control" placeholder="Enter quantity" min="1">
-      <p class="form-help">For adjustment, enter the new total stock level</p>
-      {% if form.quantity.errors %}
-        <span class="field-error">{{ form.quantity.errors|join:", " }}</span>
-      {% endif %}
-    </div>
-
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea name="notes" class="form-control"
-                rows="3" placeholder="Reason for this movement">{{ form.notes.value|default:'' }}</textarea>
-    </div>
-
-    <div class="divider"></div>
-    <div class="flex gap-12">
-      <button type="submit" class="btn btn-primary">Record Movement</button>
-      <a href="{% url 'inventory:stock_movements' %}" class="btn btn-secondary">Cancel</a>
+    <div class="sf-card__footer sf-flex sf-justify-between">
+      <a href="{% url 'inventory:stock_movements' %}" class="sf-btn sf-btn--secondary">Cancel</a>
+      <button type="submit" class="sf-btn sf-btn--primary">Record movement</button>
     </div>
   </form>
+
 </div>
 
 {% endblock %}

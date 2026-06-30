@@ -9,7 +9,6 @@ class UserProfile(models.Model):
         ('manager', 'Manager'),
         ('staff', 'Staff'),
     ]
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='users')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='staff')

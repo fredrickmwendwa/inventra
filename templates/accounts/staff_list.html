@@ -1,66 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Staff — Inventra{% endblock %}
-{% block topbar_title %}Staff Management{% endblock %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% block title %}Staff{% endblock %}
+
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Staff</span>
+</nav>
 {% endblock %}
 
 {% block content %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Staff</span>
-    </div>
-    <h1>Staff Members</h1>
-    <p>Manage your team and their access levels</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Staff members</h1>
+    <p class="sf-body" style="margin-top:4px;">
+      {{ staff.count }} member{{ staff.count|pluralize }} in {{ tenant.name }}.
+    </p>
   </div>
-  <div class="page-header-right">
-    {% if user_profile.is_manager %}
-      <a href="{% url 'accounts:add_staff' %}" class="btn btn-primary">
-        + Add Staff Member
-      </a>
-    {% endif %}
+  {% if user_profile.is_manager %}
+    <a href="{% url 'accounts:add_staff' %}" class="sf-btn sf-btn--primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Add staff member
+    </a>
+  {% endif %}
+</div>
+
+<!-- Stats strip -->
+<div class="sf-grid sf-grid-3 sf-mb-4">
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Total members</div>
+    <div class="sf-num-lg">{{ staff.count }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Active accounts</div>
+    <div class="sf-num-lg">{{ staff.count }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Workspace</div>
+    <div style="font-family:var(--font-display); font-size:var(--text-subtitle);
+                font-weight:600; color:var(--color-ink); margin-top:var(--space-1);">
+      {{ tenant.name }}
+    </div>
   </div>
 </div>
 
-<!-- Stats Strip -->
-<div class="staff-stats">
-  <div class="staff-stat-item">
-    <div class="stat-number">{{ staff.count }}</div>
-    <div class="stat-label">Total Members</div>
-  </div>
-  <div class="staff-stat-item">
-    <div class="stat-number">
-      {{ staff|length }}
-    </div>
-    <div class="stat-label">Active Users</div>
-  </div>
-  <div class="staff-stat-item">
-    <div class="stat-number">
-      {% for s in staff %}{% if s.role == 'owner' or s.role == 'manager' %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
-      {% with managers=staff|length %}{{ managers }}{% endwith %}
-    </div>
-    <div class="stat-label">Managers & Owners</div>
-  </div>
-</div>
-
-<!-- Staff Table -->
-<div class="card">
-  <div class="card-header">
-    <div>
-      <h2>All Staff</h2>
-      <p>{{ staff.count }} member{{ staff.count|pluralize }} in {{ tenant.name }}</p>
-    </div>
+<!-- Staff table -->
+<div class="sf-card">
+  <div class="sf-card__header">
+    <h2 class="sf-card-title">All staff</h2>
   </div>
 
   {% if staff %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Member</th>
@@ -68,66 +64,58 @@
             <th>Phone</th>
             <th>Email</th>
             <th>Joined</th>
-            {% if user_profile.is_manager %}<th>Actions</th>{% endif %}
+            {% if user_profile.is_manager %}<th class="right">Actions</th>{% endif %}
           </tr>
         </thead>
         <tbody>
           {% for member in staff %}
           <tr>
-            <!-- Name & Avatar -->
             <td>
-              <div class="staff-name-cell">
+              <div class="sf-entity-cell">
                 {% if member.avatar %}
-                  <img src="{{ member.avatar.url }}" class="staff-avatar" alt="">
+                  <img src="{{ member.avatar.url }}"
+                       alt=""
+                       class="sf-entity-cell__thumb"
+                       style="border-radius:50%; object-fit:cover;">
                 {% else %}
-                  <div class="staff-avatar-placeholder">
+                  <div class="sf-entity-cell__thumb sf-entity-cell__thumb--round">
                     {{ member.user.first_name|first|upper }}{{ member.user.last_name|first|upper }}
                   </div>
                 {% endif %}
-                <div class="staff-name-info">
-                  <strong>
+                <div class="sf-entity-cell__body">
+                  <div class="sf-entity-cell__name">
                     {{ member.user.get_full_name|default:member.user.username }}
                     {% if member.user == request.user %}
-                      <span class="badge badge-primary" style="font-size:10px; margin-left:4px;">You</span>
+                      <span class="sf-badge sf-badge--brand" style="margin-left:4px;">You</span>
                     {% endif %}
-                  </strong>
-                  <span>@{{ member.user.username }}</span>
+                  </div>
+                  <div class="sf-entity-cell__sub">@{{ member.user.username }}</div>
                 </div>
               </div>
             </td>
-
-            <!-- Role -->
             <td>
-              <span class="profile-role-badge role-{{ member.role }}">
+              <span class="sf-role-badge sf-role-badge--{{ member.role }}">
                 {{ member.get_role_display }}
               </span>
             </td>
-
-            <!-- Phone -->
-            <td>{{ member.phone|default:"—" }}</td>
-
-            <!-- Email -->
+            <td class="sf-num">{{ member.phone|default:"—" }}</td>
             <td>{{ member.user.email|default:"—" }}</td>
-
-            <!-- Joined -->
-            <td>{{ member.created_at|date:"M d, Y" }}</td>
-
-            <!-- Actions -->
+            <td class="sf-small sf-num">{{ member.created_at|date:"M d, Y" }}</td>
             {% if user_profile.is_manager %}
-            <td>
-              <div class="table-actions">
+            <td class="sf-table__actions">
+              <div class="sf-table__action-group">
                 {% if member.user != request.user and member.role != 'owner' %}
                   <a href="{% url 'accounts:edit_staff' member.id %}"
-                     class="btn btn-ghost btn-sm">Edit</a>
+                     class="sf-btn sf-btn--ghost sf-btn--sm">Edit</a>
                   {% if user_profile.is_owner %}
                     <a href="{% url 'accounts:remove_staff' member.id %}"
-                       class="btn btn-danger btn-sm"
+                       class="sf-btn sf-btn--danger sf-btn--sm"
                        data-confirm="Remove {{ member.user.get_full_name }}? This cannot be undone.">
                       Remove
                     </a>
                   {% endif %}
                 {% else %}
-                  <span class="text-muted" style="font-size:12px;">—</span>
+                  <span class="sf-small">—</span>
                 {% endif %}
               </div>
             </td>
@@ -138,7 +126,7 @@
       </table>
     </div>
   {% else %}
-    {% include 'components/empty_state.html' with icon="👥" title="No staff members yet" message="Add your first team member to get started." action_url=add_url action_label="Add Staff Member" %}
+    {% include 'components/empty_state.html' with title="No staff members yet" message="Add your first team member to start collaborating." action_label="Add staff member" action_url="/accounts/staff/add/" %}
   {% endif %}
 </div>
 

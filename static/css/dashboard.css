@@ -1,0 +1,367 @@
+/* ============================================================
+   INVENTRA — DASHBOARD
+   Page-specific styles that sit on top of components.css.
+   The dashboard is the one place we use the full display
+   scale — Fraunces at large sizes, mono for every number.
+   ============================================================ */
+
+/* ══════════════════════════════════════════
+   WELCOME STRIP
+══════════════════════════════════════════ */
+.sf-welcome {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.sf-welcome__heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  margin: 0 0 var(--space-1);
+}
+
+.sf-welcome__sub {
+  font-size: var(--text-body);
+  color: var(--color-ink-faint);
+  margin: 0;
+}
+
+.sf-welcome__actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   KPI GRID ROW
+   4-up on wide, 2-up on tablet, 1-up on mobile
+══════════════════════════════════════════ */
+.sf-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+@media (max-width: 1100px) {
+  .sf-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .sf-kpi-row { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   REVENUE SUMMARY ROW (3-up strip below KPIs)
+══════════════════════════════════════════ */
+.sf-revenue-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.sf-revenue-card {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5);
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow   var(--duration-base) var(--ease-out),
+    transform    var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+}
+
+.sf-revenue-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+  border-color: var(--color-border-strong);
+}
+
+/* Ledger watermark number — decorative */
+.sf-revenue-card::after {
+  content: attr(data-watermark);
+  position: absolute;
+  right: var(--space-4);
+  bottom: -8px;
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--color-bg-sunken);
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  user-select: none;
+}
+
+[data-theme='dark'] .sf-revenue-card::after {
+  color: rgba(255,255,255,0.03);
+}
+
+.sf-revenue-card__label {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  margin-bottom: var(--space-3);
+}
+
+.sf-revenue-card__value {
+  font-family: var(--font-mono);
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.sf-revenue-card__sub {
+  font-size: var(--text-small);
+  color: var(--color-ink-faint);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 900px) {
+  .sf-revenue-row { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD MAIN SPLIT
+   Chart (left, wider) + sidebar panels (right)
+══════════════════════════════════════════ */
+.sf-dash-split {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .sf-dash-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD BOTTOM ROW
+   Recent sales (left) + top products / movements (right)
+══════════════════════════════════════════ */
+.sf-dash-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sf-dash-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ══════════════════════════════════════════
+   CHART CARD (dashboard)
+   Canvas wrapper — Chart.js fills this
+══════════════════════════════════════════ */
+.sf-chart-wrap {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+/* ══════════════════════════════════════════
+   STOCK ALERTS STACK
+   Two alert cards stacked in the right column
+══════════════════════════════════════════ */
+.sf-alerts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Alert card header row */
+.sf-alert-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sf-alert-card-header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sf-alert-card-header__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.sf-alert-card-header__count--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.sf-alert-card-header__count--warning {
+  background: var(--color-accent-amber-soft);
+  color: #8a5a14;
+}
+[data-theme='dark'] .sf-alert-card-header__count--warning {
+  color: var(--color-accent-amber);
+}
+
+/* ══════════════════════════════════════════
+   TOP PRODUCTS LIST
+══════════════════════════════════════════ */
+.sf-top-product {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sf-top-product:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sf-top-product__rank {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  color: var(--color-ink-faint);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sf-top-product__rank--gold   { color: #B08D2A; }
+.sf-top-product__rank--silver { color: #7A8A8E; }
+.sf-top-product__rank--bronze { color: #9A6040; }
+
+.sf-top-product__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sf-top-product__name {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+/* Mini bar beneath the name */
+.sf-top-product__bar-wrap {
+  height: 4px;
+  background: var(--color-bg-sunken);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.sf-top-product__bar-fill {
+  height: 100%;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+.sf-top-product__qty {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--color-ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ══════════════════════════════════════════
+   INVENTORY SNAPSHOT STRIP
+   3 figures in a horizontal strip at bottom
+══════════════════════════════════════════ */
+.sf-snapshot-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.sf-snapshot-item {
+  text-align: center;
+  padding: var(--space-5) var(--space-4);
+}
+
+.sf-snapshot-item + .sf-snapshot-item {
+  border-left: 1px solid var(--color-border);
+}
+
+.sf-snapshot-item__value {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+  font-feature-settings: 'tnum' 1;
+  line-height: 1;
+}
+
+.sf-snapshot-item__label {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 560px) {
+  .sf-snapshot-strip { grid-template-columns: 1fr; }
+  .sf-snapshot-item + .sf-snapshot-item {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+/* ══════════════════════════════════════════
+   COUNT-UP ANIMATION
+   Applied by JS when KPI card scrolls into view
+══════════════════════════════════════════ */
+@keyframes sf-count-flash {
+  0%   { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.sf-kpi-card__value[data-counting] {
+  animation: sf-count-flash var(--duration-slow) var(--ease-out);
+}

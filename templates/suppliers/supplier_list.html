@@ -1,79 +1,79 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Suppliers — Inventra{% endblock %}
-{% block topbar_title %}Suppliers{% endblock %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/suppliers.css' %}">
+{% block title %}Suppliers{% endblock %}
+
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Suppliers</span>
+</nav>
 {% endblock %}
 
 {% block content %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Suppliers</span>
-    </div>
-    <h1>Suppliers</h1>
-    <p>Manage your product suppliers and vendors</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Suppliers</h1>
+    <p class="sf-body" style="margin-top:4px;">Manage your product suppliers and vendors.</p>
   </div>
-  <div class="page-header-right">
-    <a href="{% url 'suppliers:add_supplier' %}" class="btn btn-primary">+ Add Supplier</a>
+  <a href="{% url 'suppliers:add_supplier' %}" class="sf-btn sf-btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Add supplier
+  </a>
+</div>
+
+<!-- Stats strip -->
+<div class="sf-grid sf-grid-3 sf-mb-4">
+  <div class="sf-kpi-card">
+    <div class="sf-kpi-card__top">
+      <div class="sf-eyebrow">Total suppliers</div>
+      <span class="sf-kpi-card__icon sf-kpi-card__icon--brand" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+    <div class="sf-num-lg">{{ total_active|add:total_inactive }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Active</div>
+    <div class="sf-num-lg" style="color:var(--color-brand-strong);">{{ total_active }}</div>
+  </div>
+  <div class="sf-kpi-card">
+    <div class="sf-eyebrow">Inactive</div>
+    <div class="sf-num-lg" style="color:var(--color-danger);">{{ total_inactive }}</div>
   </div>
 </div>
 
-<!-- Stats Strip -->
-<div class="supplier-stats">
-  <div class="supplier-stat-item">
-    <div class="supplier-stat-icon indigo">🏢</div>
-    <div class="supplier-stat-text">
-      <div class="stat-number">{{ total_active|add:total_inactive }}</div>
-      <div class="stat-label">Total Suppliers</div>
-    </div>
-  </div>
-  <div class="supplier-stat-item">
-    <div class="supplier-stat-icon green">✅</div>
-    <div class="supplier-stat-text">
-      <div class="stat-number">{{ total_active }}</div>
-      <div class="stat-label">Active</div>
-    </div>
-  </div>
-  <div class="supplier-stat-item">
-    <div class="supplier-stat-icon red">⛔</div>
-    <div class="supplier-stat-text">
-      <div class="stat-number">{{ total_inactive }}</div>
-      <div class="stat-label">Inactive</div>
-    </div>
-  </div>
-</div>
+<!-- Toolbar -->
+<div class="sf-toolbar">
+  <form method="GET" class="sf-toolbar__search" role="search">
+    <span class="sf-toolbar__search-icon" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Search by name, email or phone…">
+  </form>
 
-<!-- Filter Bar -->
-<div class="filter-bar">
-  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
-    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
-      <span class="search-icon">🔍</span>
-      <input type="text" name="q" value="{{ q }}"
-             placeholder="Search by name, email or phone...">
-    </div>
-    <select name="status" class="form-control" style="width:160px;">
-      <option value="">All Status</option>
-      <option value="active"   {% if status == 'active'   %}selected{% endif %}>Active</option>
-      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
-    </select>
-    <button type="submit" class="btn btn-secondary">Filter</button>
-    {% if q or status %}
-      <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-ghost">Clear</a>
-    {% endif %}
+  <select name="status" form="sf-supplier-filter-form" class="sf-select" style="max-width:160px;" onchange="this.form.submit()">
+    <option value="">All status</option>
+    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+  </select>
+  <form id="sf-supplier-filter-form" method="GET" style="display:none;">
+    <input type="hidden" name="q" value="{{ q }}">
   </form>
 </div>
 
-<!-- Table -->
-<div class="card">
+<div class="sf-card">
   {% if page_obj.object_list %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Supplier</th>
@@ -82,78 +82,45 @@
             <th>Address</th>
             <th>Status</th>
             <th>Added</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for supplier in page_obj %}
-          <tr>
-
-            <!-- Name -->
+          <tr data-href="{% url 'suppliers:supplier_detail' supplier.id %}">
             <td>
-              <div class="supplier-name-cell">
-                <div class="supplier-avatar">
+              <div class="sf-entity-cell">
+                <div class="sf-entity-cell__thumb sf-entity-cell__thumb--round">
                   {{ supplier.name|first|upper }}
                 </div>
-                <div class="supplier-name-info">
-                  <strong>{{ supplier.name }}</strong>
+                <div class="sf-entity-cell__body">
+                  <div class="sf-entity-cell__name">{{ supplier.name }}</div>
                   {% if supplier.notes %}
-                    <span>{{ supplier.notes|truncatechars:40 }}</span>
+                    <div class="sf-entity-cell__sub">{{ supplier.notes|truncatechars:36 }}</div>
                   {% endif %}
                 </div>
               </div>
             </td>
-
-            <!-- Phone -->
-            <td>{{ supplier.phone|default:"—" }}</td>
-
-            <!-- Email -->
+            <td class="sf-num">{{ supplier.phone|default:"—" }}</td>
             <td>{{ supplier.email|default:"—" }}</td>
-
-            <!-- Address -->
-            <td>{{ supplier.address|truncatechars:40|default:"—" }}</td>
-
-            <!-- Status -->
+            <td class="sf-small">{{ supplier.address|truncatechars:36|default:"—" }}</td>
             <td>
               {% if supplier.is_active %}
-                <span class="badge badge-success">Active</span>
+                <span class="sf-badge sf-badge--success">Active</span>
               {% else %}
-                <span class="badge badge-danger">Inactive</span>
+                <span class="sf-badge sf-badge--danger">Inactive</span>
               {% endif %}
             </td>
-
-            <!-- Added date -->
-            <td>{{ supplier.created_at|date:"M d, Y" }}</td>
-
-            <!-- Actions -->
-            <td>
-              <div class="table-actions">
-                <a href="{% url 'suppliers:supplier_detail' supplier.id %}"
-                   class="btn btn-ghost btn-sm">View</a>
-                <a href="{% url 'suppliers:edit_supplier' supplier.id %}"
-                   class="btn btn-secondary btn-sm">Edit</a>
-                <a href="{% url 'suppliers:delete_supplier' supplier.id %}"
-                   class="btn btn-danger btn-sm"
-                   data-confirm="Delete supplier '{{ supplier.name }}'? This cannot be undone.">
-                  Delete
-                </a>
-              </div>
-            </td>
-
+            <td class="sf-small sf-num">{{ supplier.created_at|date:"M d, Y" }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% include 'components/pagination.html' %}
+    <div class="sf-card__footer">
+      {% include 'components/pagination.html' %}
+    </div>
   {% else %}
-    {% include 'components/empty_state.html' with
-       icon="🏢"
-       title="No suppliers found"
-       message="Add your first supplier to start tracking your vendors."
-       action_url="/suppliers/add/"
-       action_label="Add Supplier"
-    %}
+    {% include 'components/empty_state.html' with title="No suppliers found" message="Add your first supplier to start tracking your vendors." action_label="Add supplier" action_url="/suppliers/add/" %}
   {% endif %}
 </div>
 

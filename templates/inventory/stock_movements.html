@@ -1,59 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Stock Movements — Inventra{% endblock %}
-{% block topbar_title %}Stock Movements{% endblock %}
+{% block title %}Stock Movements{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Stock Movements</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Stock Movements</span>
-    </div>
-    <h1>Stock Movements</h1>
-    <p>Full history of all stock changes</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Stock movements</h1>
+    <p class="sf-body" style="margin-top:4px;">Full history of stock in, out, and adjustments.</p>
   </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:add_stock_movement' %}" class="btn btn-primary">+ Record Movement</a>
-  </div>
+  <a href="{% url 'inventory:add_stock_movement' %}" class="sf-btn sf-btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Record movement
+  </a>
 </div>
 
-<!-- Filters -->
-<div class="filter-bar">
-  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
-    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
-      <span class="search-icon">🔍</span>
-      <input type="text" name="q" value="{{ q }}" placeholder="Search by product...">
-    </div>
-    <select name="type" class="form-control" style="width:180px;">
-      <option value="">All Types</option>
-      <option value="in" {% if movement_type == 'in' %}selected{% endif %}>Stock In</option>
-      <option value="out" {% if movement_type == 'out' %}selected{% endif %}>Stock Out</option>
-      <option value="adjustment" {% if movement_type == 'adjustment' %}selected{% endif %}>Adjustment</option>
-    </select>
-    <button type="submit" class="btn btn-secondary">Filter</button>
-    {% if q or movement_type %}
-      <a href="{% url 'inventory:stock_movements' %}" class="btn btn-ghost">Clear</a>
-    {% endif %}
+<!-- Toolbar -->
+<div class="sf-toolbar">
+  <form method="GET" class="sf-toolbar__search" role="search">
+    <span class="sf-toolbar__search-icon" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Search by product…">
+  </form>
+
+  <select name="type" form="sf-type-filter-form" class="sf-select" style="max-width:170px;" onchange="this.form.submit()">
+    <option value="">All types</option>
+    <option value="in" {% if movement_type == 'in' %}selected{% endif %}>Stock in</option>
+    <option value="out" {% if movement_type == 'out' %}selected{% endif %}>Stock out</option>
+    <option value="adjustment" {% if movement_type == 'adjustment' %}selected{% endif %}>Adjustment</option>
+  </select>
+  <form id="sf-type-filter-form" method="GET" style="display:none;">
+    <input type="hidden" name="q" value="{{ q }}">
   </form>
 </div>
 
-<div class="card">
+<div class="sf-card">
   {% if page_obj.object_list %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Product</th>
             <th>Type</th>
-            <th>Quantity</th>
+            <th class="right">Quantity</th>
             <th>Notes</th>
-            <th>Recorded By</th>
+            <th>Recorded by</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -62,33 +71,31 @@
           <tr>
             <td><strong>{{ movement.product.name }}</strong></td>
             <td>
-              <span class="movement-type-badge movement-{{ movement.movement_type }}">
-                {% if movement.movement_type == 'in' %}↑ Stock In
-                {% elif movement.movement_type == 'out' %}↓ Stock Out
-                {% else %}⇄ Adjustment
-                {% endif %}
+              <span class="sf-movement-badge sf-movement-badge--{{ movement.movement_type }}">
+                {% if movement.movement_type == 'in' %}↑ In
+                {% elif movement.movement_type == 'out' %}↓ Out
+                {% else %}⇄ Adjustment{% endif %}
               </span>
             </td>
-            <td>
-              {% if movement.movement_type == 'in' %}
-                <span class="qty-positive">+{{ movement.quantity }}</span>
-              {% elif movement.movement_type == 'out' %}
-                <span class="qty-negative">-{{ movement.quantity }}</span>
-              {% else %}
-                <span class="qty-neutral">{{ movement.quantity }}</span>
-              {% endif %}
+            <td class="right sf-num" style="font-weight:600;
+              {% if movement.movement_type == 'in' %}color:var(--color-brand-strong);
+              {% elif movement.movement_type == 'out' %}color:var(--color-danger);
+              {% else %}color:var(--color-accent-amber);{% endif %}">
+              {% if movement.movement_type == 'in' %}+{% elif movement.movement_type == 'out' %}-{% endif %}{{ movement.quantity }}
             </td>
-            <td>{{ movement.notes|default:"—"|truncatechars:50 }}</td>
+            <td class="sf-small">{{ movement.notes|default:"—"|truncatechars:50 }}</td>
             <td>{{ movement.created_by.get_full_name|default:movement.created_by.username|default:"—" }}</td>
-            <td>{{ movement.created_at|date:"M d, Y H:i" }}</td>
+            <td class="sf-small sf-num">{{ movement.created_at|date:"M d, Y H:i" }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% include 'components/pagination.html' %}
+    <div class="sf-card__footer">
+      {% include 'components/pagination.html' %}
+    </div>
   {% else %}
-    {% include 'components/empty_state.html' with icon="📊" title="No movements found" message="Stock movements appear here when you record stock in, out or adjustments." action_url="/inventory/stock-movements/add/" action_label="Record Movement" %}
+    {% include 'components/empty_state.html' with title="No movements found" message="Stock movements appear here when you record stock in, out, or adjustments." action_label="Record movement" action_url="/inventory/stock-movements/add/" %}
   {% endif %}
 </div>
 

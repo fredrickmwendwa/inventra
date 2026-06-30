@@ -1,7 +1,10 @@
 {% if messages %}
-  <div style="display:none">
+  <div aria-hidden="true" style="display:none;">
     {% for message in messages %}
-      <span class="django-message" data-type="{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">{{ message }}</span>
+      <span class="sf-dj-message"
+        data-type="{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">
+        {{ message }}
+      </span>
     {% endfor %}
   </div>
 {% endif %}

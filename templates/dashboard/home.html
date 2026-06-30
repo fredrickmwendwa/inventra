@@ -1,58 +1,727 @@
-{% extends 'base.html' %}
-{% block title %}Dashboard — Inventra{% endblock %}
-{% block topbar_title %}Dashboard{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="page-header-left">
-    <h1>Welcome back, {{ request.user.first_name|default:request.user.username }} 👋</h1>
-    <p>Here's what's happening with {{ tenant.name }} today.</p>
+
+  <div class="sf-welcome">
+  <div>
+    <h1 class="sf-welcome__heading">
+      {% now "G" as hour %}
+      Good
+      {% if hour|add:0 < 12 %}morning{% elif hour|add:0 < 17 %}afternoon{% else %}evening{% endif %},
+      {{ request.user.first_name|default:request.user.username }}
+    </h1>
+    <p class="sf-welcome__sub" style="margin-top: 4px">
+      Here's how {{ tenant.name|default:"your business" }} is
+      doing today, {% now "l j F Y" %}.
+    </p>
+  </div>
+
+  <div class="sf-welcome__actions">
+    <a href="{% url 'inventory:add_product' %}" class="sf-btn sf-btn--secondary">
+      Add product
+    </a>
+    <a href="{% url 'sales:new_sale' %}" class="sf-btn sf-btn--primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14M5 12h14"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      New sale
+    </a>
   </div>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-info">
-      <h3>Total Products</h3>
-      <div class="stat-value">—</div>
-    </div>
-    <div class="stat-icon indigo">📦</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-info">
-      <h3>Total Sales</h3>
-      <div class="stat-value">—</div>
-    </div>
-    <div class="stat-icon green">🧾</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-info">
-      <h3>Suppliers</h3>
-      <div class="stat-value">—</div>
-    </div>
-    <div class="stat-icon sky">🏢</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-info">
-      <h3>Staff Members</h3>
-      <div class="stat-value">—</div>
-    </div>
-    <div class="stat-icon amber">👥</div>
-  </div>
-</div>
+<!-- ══ KPI ROW ══ -->
+<div class="sf-kpi-row">
 
-<div class="card">
-  <div class="card-header">
+  <!-- Total products -->
+  <div class="sf-kpi-card sf-kpi-card--brand">
+    <div class="sf-kpi-card__top">
+      <div class="sf-eyebrow">Total products</div>
+      <span class="sf-kpi-card__icon sf-kpi-card__icon--brand" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+    <div class="sf-kpi-card__value sf-num" data-count-up>{{ total_products }}</div>
     <div>
-      <h2>Getting Started</h2>
-      <p>Complete these steps to set up your workspace</p>
+      <span class="sf-kpi-card__delta-context">
+        {{ total_categories }} categor{{ total_categories|pluralize:"y,ies" }}
+      </span>
     </div>
   </div>
-  <div class="empty-state">
-    <div class="empty-icon">🚀</div>
-    <h3>Dashboard is ready</h3>
-    <p>Real stats and charts will appear here once you start adding products and recording sales.</p>
-    <a href="{% url 'inventory:product_list' %}" class="btn btn-primary btn-sm">Add First Product</a>
+
+  <!-- Total confirmed sales -->
+  <div class="sf-kpi-card">
+    <div class="sf-kpi-card__top">
+      <div class="sf-eyebrow">Confirmed sales</div>
+      <span class="sf-kpi-card__icon sf-kpi-card__icon--brand" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="9"  cy="21" r="1.4" fill="currentColor"/>
+          <circle cx="19" cy="21" r="1.4" fill="currentColor"/>
+          <path d="M1 1h3l2.6 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L22 6H6"
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+    <div class="sf-kpi-card__value sf-num" data-count-up>{{ total_sales_count }}</div>
+    <div>
+      <span class="sf-kpi-card__delta-context">All time</span>
+    </div>
+  </div>
+
+  <!-- Active suppliers -->
+  <div class="sf-kpi-card">
+    <div class="sf-kpi-card__top">
+      <div class="sf-eyebrow">Active suppliers</div>
+      <span class="sf-kpi-card__icon sf-kpi-card__icon--info" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+    <div class="sf-kpi-card__value sf-num" data-count-up>{{ total_suppliers }}</div>
+    <div>
+      <span class="sf-kpi-card__delta-context">Vendors &amp; partners</span>
+    </div>
+  </div>
+
+  <!-- Stock alerts -->
+  <div class="sf-kpi-card sf-kpi-card--danger">
+    <div class="sf-kpi-card__top">
+      <div class="sf-eyebrow">Stock alerts</div>
+      <span class="sf-kpi-card__icon sf-kpi-card__icon--danger" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M12 9v4M12 17h.01"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+    </div>
+    <div class="sf-kpi-card__value sf-num"
+         data-count-up>{{ out_of_stock|length|add:low_stock|length }}</div>
+    <div>
+      <span class="sf-kpi-card__delta-context">
+        {{ out_of_stock|length }} out · {{ low_stock|length }} low
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ REVENUE STRIP ══ -->
+<div class="sf-revenue-row">
+
+  <div class="sf-revenue-card" data-watermark="KES">
+    <div class="sf-revenue-card__label">Total revenue</div>
+    <div class="sf-revenue-card__value sf-num">
+      KES {{ total_revenue|floatformat:2 }}
+    </div>
+    <div class="sf-revenue-card__sub">From all confirmed sales</div>
+  </div>
+
+  <div class="sf-revenue-card" data-watermark="30D">
+    <div class="sf-revenue-card__label">This month</div>
+    <div class="sf-revenue-card__value sf-num">
+      KES {{ revenue_this_month|floatformat:2 }}
+    </div>
+    <div class="sf-revenue-card__sub">Last 30 days</div>
+  </div>
+
+  <div class="sf-revenue-card" data-watermark="7D">
+    <div class="sf-revenue-card__label">This week</div>
+    <div class="sf-revenue-card__value sf-num">
+      KES {{ revenue_this_week|floatformat:2 }}
+    </div>
+    <div class="sf-revenue-card__sub">Last 7 days</div>
+  </div>
+
+</div>
+
+<!-- ══ MAIN SPLIT: Chart + Stock alerts ══ -->
+<div class="sf-dash-split">
+
+  <!-- Revenue chart -->
+  <div class="sf-card sf-chart-card">
+    <div class="sf-card__header">
+      <div>
+        <h2 class="sf-card-title">Revenue — last 7 days</h2>
+        <div class="sf-chart-legend" style="margin-top:var(--space-1);">
+          <span class="sf-chart-legend__item">
+            <span class="sf-chart-legend__dot"
+                  style="background:var(--color-brand);">
+            </span>
+            Confirmed sales
+          </span>
+        </div>
+      </div>
+      <div class="sf-period-toggle" aria-label="Chart period">
+        <button type="button"
+                class="sf-period-toggle__btn is-active"
+                aria-pressed="true">7D</button>
+        <button type="button"
+                class="sf-period-toggle__btn"
+                aria-pressed="false">30D</button>
+        <button type="button"
+                class="sf-period-toggle__btn"
+                aria-pressed="false">90D</button>
+      </div>
+    </div>
+    <div class="sf-card__body">
+      <div class="sf-chart-wrap">
+        <canvas id="revenueChart"
+                aria-label="Bar chart showing revenue for the last 7 days"
+                role="img">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock alerts stack -->
+  <div class="sf-alerts-stack">
+
+    <!-- Out of stock -->
+    <div class="sf-card">
+      <div class="sf-alert-card-header">
+        <div class="sf-alert-card-header__left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               style="color:var(--color-danger);" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M12 9v4M12 17h.01"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span class="sf-card-title">Out of stock</span>
+        </div>
+        <span class="sf-alert-card-header__count sf-alert-card-header__count--danger"
+              aria-label="{{ out_of_stock|length }} products out of stock">
+          {{ out_of_stock|length }}
+        </span>
+      </div>
+
+      <div class="sf-card__body" style="padding-top:var(--space-3);">
+        {% if out_of_stock %}
+          {% for product in out_of_stock|slice:":5" %}
+            <div class="sf-stock-row">
+              <div class="sf-stock-row__thumb" aria-hidden="true">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}"
+                       alt="{{ product.name }}"
+                       style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                          stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% endif %}
+              </div>
+              <div class="sf-stock-row__body">
+                <div class="sf-stock-row__name">{{ product.name }}</div>
+                <div class="sf-stock-row__sub">
+                  {{ product.sku|default:"No SKU" }}
+                </div>
+              </div>
+              <div class="sf-stock-row__qty"
+                   style="color:var(--color-danger);">
+                0 left
+              </div>
+            </div>
+          {% endfor %}
+          {% if out_of_stock|length > 5 %}
+            <div style="padding-top:var(--space-3);text-align:center;">
+              <a href="{% url 'inventory:product_list' %}?stock=out"
+                 class="sf-btn sf-btn--ghost sf-btn--sm">
+                View all {{ out_of_stock|length }} →
+              </a>
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="sf-small" style="padding:var(--space-4) 0;text-align:center;">
+            ✓ All products are in stock
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Low stock -->
+    <div class="sf-card">
+      <div class="sf-alert-card-header">
+        <div class="sf-alert-card-header__left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               style="color:var(--color-accent-amber);" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M12 9v4M12 17h.01"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span class="sf-card-title">Low stock</span>
+        </div>
+        <span class="sf-alert-card-header__count sf-alert-card-header__count--warning"
+              aria-label="{{ low_stock|length }} products low on stock">
+          {{ low_stock|length }}
+        </span>
+      </div>
+
+      <div class="sf-card__body" style="padding-top:var(--space-3);">
+        {% if low_stock %}
+          {% for product in low_stock|slice:":5" %}
+            <div class="sf-stock-row">
+              <div class="sf-stock-row__thumb" aria-hidden="true">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}"
+                       alt="{{ product.name }}"
+                       style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                          stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% endif %}
+              </div>
+              <div class="sf-stock-row__body">
+                <div class="sf-stock-row__name">{{ product.name }}</div>
+                <div class="sf-stock-row__sub">
+                  {{ product.sku|default:"No SKU" }}
+                </div>
+              </div>
+              <div class="sf-stock-row__qty"
+                   style="color:var(--color-accent-amber);">
+                {{ product.stock_quantity }} left
+              </div>
+            </div>
+          {% endfor %}
+          {% if low_stock|length > 5 %}
+            <div style="padding-top:var(--space-3);text-align:center;">
+              <a href="{% url 'inventory:product_list' %}?stock=low"
+                 class="sf-btn sf-btn--ghost sf-btn--sm">
+                View all {{ low_stock|length }} →
+              </a>
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="sf-small" style="padding:var(--space-4) 0;text-align:center;">
+            ✓ Stock levels are healthy
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /sf-alerts-stack -->
+
+</div><!-- /sf-dash-split -->
+
+<!-- ══ BOTTOM ROW: Recent sales + Top products + Movements ══ -->
+<div class="sf-dash-row">
+
+  <!-- Recent sales -->
+  <div class="sf-card">
+    <div class="sf-card__header">
+      <h2 class="sf-card-title">Recent sales</h2>
+      <a href="{% url 'sales:sale_list' %}"
+         class="sf-small"
+         style="color:var(--color-brand-strong);">
+        View all →
+      </a>
+    </div>
+    <div class="sf-card__body">
+      {% if recent_sales %}
+        <div class="sf-timeline">
+          {% for sale in recent_sales %}
+            <div class="sf-timeline-item">
+              <span class="sf-timeline-item__icon sf-timeline-item__icon--sale"
+                    aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9"  cy="21" r="1.4" fill="currentColor"/>
+                  <circle cx="19" cy="21" r="1.4" fill="currentColor"/>
+                  <path d="M1 1h3l2.6 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L22 6H6"
+                        stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div class="sf-timeline-item__body">
+                <a href="{% url 'sales:sale_detail' sale.id %}"
+                   class="sf-timeline-item__title"
+                   style="text-decoration:none; display:block;">
+                  {{ sale.sale_number }} · {{ sale.customer_name }}
+                </a>
+                <p class="sf-timeline-item__meta">
+                  {{ sale.created_at|timesince }} ago ·
+                  {% if sale.status == 'confirmed' %}
+                    <span class="sf-badge sf-badge--success">Confirmed</span>
+                  {% elif sale.status == 'draft' %}
+                    <span class="sf-badge sf-badge--warning">Draft</span>
+                  {% else %}
+                    <span class="sf-badge sf-badge--neutral">Cancelled</span>
+                  {% endif %}
+                </p>
+              </div>
+              <span class="sf-timeline-item__amount sf-num">
+                KES {{ sale.total_amount|floatformat:0 }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="sf-empty" style="padding:var(--space-8) var(--space-4);">
+          <div class="sf-empty__icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="9"  cy="21" r="1.4" fill="currentColor"/>
+              <circle cx="19" cy="21" r="1.4" fill="currentColor"/>
+              <path d="M1 1h3l2.6 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L22 6H6"
+                    stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="sf-empty__title" style="font-size:var(--text-subtitle);">No sales yet</p>
+          <p class="sf-empty__message" style="font-size:var(--text-small);">
+            Sales you record will appear here.
+          </p>
+          <a href="{% url 'sales:new_sale' %}" class="sf-btn sf-btn--primary sf-btn--sm">
+            Record a sale
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right column: Top products + Recent movements -->
+  <div style="display:flex; flex-direction:column; gap:var(--space-5);">
+
+    <!-- Top selling products -->
+    <div class="sf-card">
+      <div class="sf-card__header">
+        <h2 class="sf-card-title">Top selling products</h2>
+        <a href="{% url 'inventory:product_list' %}"
+           class="sf-small"
+           style="color:var(--color-brand-strong);">
+          All products →
+        </a>
+      </div>
+      <div class="sf-card__body">
+        {% if top_products %}
+          {% for product in top_products %}
+            {% with max_qty=top_products.0.total_qty %}
+            <div class="sf-top-product">
+              <span class="sf-top-product__rank
+                {% if forloop.counter == 1 %}sf-top-product__rank--gold
+                {% elif forloop.counter == 2 %}sf-top-product__rank--silver
+                {% elif forloop.counter == 3 %}sf-top-product__rank--bronze
+                {% endif %}"
+                aria-hidden="true">
+                {{ forloop.counter }}
+              </span>
+              <div class="sf-top-product__body">
+                <div class="sf-top-product__name">
+                  {{ product.product__name }}
+                </div>
+                <div class="sf-top-product__bar-wrap">
+                  <div class="sf-top-product__bar-fill"
+                       style="width:{% widthratio product.total_qty max_qty 100 %}%;">
+                  </div>
+                </div>
+              </div>
+              <span class="sf-top-product__qty sf-num">
+                {{ product.total_qty }}
+              </span>
+            </div>
+            {% endwith %}
+          {% endfor %}
+        {% else %}
+          <p class="sf-small" style="padding:var(--space-4) 0; text-align:center;">
+            No confirmed sales yet
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent stock movements -->
+    <div class="sf-card">
+      <div class="sf-card__header">
+        <h2 class="sf-card-title">Stock movements</h2>
+        <a href="{% url 'inventory:stock_movements' %}"
+           class="sf-small"
+           style="color:var(--color-brand-strong);">
+          View all →
+        </a>
+      </div>
+      <div class="sf-card__body">
+        {% if recent_movements %}
+          <div class="sf-timeline">
+            {% for movement in recent_movements %}
+              <div class="sf-timeline-item">
+                <span class="sf-timeline-item__icon
+                  {% if movement.movement_type == 'in' %}sf-timeline-item__icon--sale
+                  {% elif movement.movement_type == 'out' %}sf-timeline-item__icon--alert
+                  {% else %}sf-timeline-item__icon--adjustment{% endif %}"
+                  aria-hidden="true">
+                  {% if movement.movement_type == 'in' %}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 19V5M5 12l7-7 7 7"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% elif movement.movement_type == 'out' %}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 5v14M5 12l7 7 7-7"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% else %}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M7 16V8m10 8V8M3 12h18"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round"/>
+                    </svg>
+                  {% endif %}
+                </span>
+                <div class="sf-timeline-item__body">
+                  <p class="sf-timeline-item__title">
+                    {{ movement.product.name|truncatechars:28 }}
+                  </p>
+                  <p class="sf-timeline-item__meta">
+                    {{ movement.created_at|date:"M d, H:i" }}
+                    {% if movement.movement_type == 'in' %}· Stock in
+                    {% elif movement.movement_type == 'out' %}· Stock out
+                    {% else %}· Adjustment{% endif %}
+                  </p>
+                </div>
+                <span class="sf-timeline-item__amount sf-num"
+                  style="{% if movement.movement_type == 'in' %}color:var(--color-brand-strong);
+                         {% elif movement.movement_type == 'out' %}color:var(--color-danger);
+                         {% else %}color:var(--color-accent-amber);{% endif %}">
+                  {% if movement.movement_type == 'in' %}+{% elif movement.movement_type == 'out' %}-{% endif %}{{ movement.quantity }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="sf-small" style="padding:var(--space-4) 0; text-align:center;">
+            No movements recorded yet
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /sf-dash-row -->
+
+<!-- ══ INVENTORY SNAPSHOT STRIP ══ -->
+<div class="sf-card">
+  <div class="sf-card__header">
+    <div>
+      <h2 class="sf-card-title">Inventory snapshot</h2>
+      <p class="sf-small" style="margin-top:2px;">
+        Current stock overview for {{ tenant.name }}
+      </p>
+    </div>
+    <a href="{% url 'inventory:product_list' %}"
+       class="sf-btn sf-btn--secondary sf-btn--sm">
+      View all products →
+    </a>
+  </div>
+  <div class="sf-snapshot-strip">
+
+    <div class="sf-snapshot-item">
+      <div class="sf-snapshot-item__value sf-num"
+           data-count-up>{{ total_products }}</div>
+      <div class="sf-snapshot-item__label">Active products</div>
+    </div>
+
+    <div class="sf-snapshot-item">
+      <div class="sf-snapshot-item__value sf-num"
+           style="color:var(--color-brand-strong);">
+        KES {{ inventory_value|floatformat:0 }}
+      </div>
+      <div class="sf-snapshot-item__label">Stock value (cost)</div>
+    </div>
+
+    <div class="sf-snapshot-item">
+      <div class="sf-snapshot-item__value sf-num"
+           style="{% if out_of_stock %}color:var(--color-danger);{% else %}color:var(--color-brand-strong);{% endif %}">
+        {{ out_of_stock|length }}
+      </div>
+      <div class="sf-snapshot-item__label">Out of stock</div>
+    </div>
+
   </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+
+  /* ── Chart data from Django view ── */
+  var labels = {{ chart_labels|safe }};
+  var values = {{ chart_values|safe }};
+
+  /* ── Resolve colours from CSS tokens ── */
+  var style    = getComputedStyle(document.documentElement);
+  var brand    = style.getPropertyValue('--color-brand').trim();
+  var brandStr = style.getPropertyValue('--color-brand-strong').trim();
+  var border   = style.getPropertyValue('--color-border').trim();
+  var faint    = style.getPropertyValue('--color-ink-faint').trim();
+  var raised   = style.getPropertyValue('--color-bg-raised').trim();
+  var ink      = style.getPropertyValue('--color-ink').trim();
+  var sunken   = style.getPropertyValue('--color-bg-sunken').trim();
+
+  /* ── Gradient fill under the line ── */
+  var ctx      = document.getElementById('revenueChart');
+  if (!ctx) return;
+  var chartCtx = ctx.getContext('2d');
+
+  var gradient = chartCtx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0,   'rgba(45,106,79,0.18)');
+  gradient.addColorStop(0.7, 'rgba(45,106,79,0.04)');
+  gradient.addColorStop(1,   'rgba(45,106,79,0)');
+
+  /* ── Build chart ── */
+  var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Revenue (KES)',
+        data: values,
+        backgroundColor: function (context) {
+          /* Today's bar (last) slightly darker */
+          var index = context.dataIndex;
+          return index === values.length - 1 ? brandStr : brand;
+        },
+        borderRadius: 4,
+        borderSkipped: false,
+        barPercentage: 0.6,
+        categoryPercentage: 0.7,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: raised,
+          borderColor: border,
+          borderWidth: 1,
+          titleColor: faint,
+          bodyColor: ink,
+          titleFont: {
+            family: "'IBM Plex Mono', monospace",
+            size: 11,
+          },
+          bodyFont: {
+            family: "'IBM Plex Mono', monospace",
+            size: 13,
+            weight: '600',
+          },
+          padding: 12,
+          callbacks: {
+            label: function (context) {
+              return ' KES ' + context.parsed.y.toLocaleString('en-KE', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              });
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          border: {
+            display: false,
+          },
+          ticks: {
+            color: faint,
+            font: {
+              family: "'IBM Plex Mono', monospace",
+              size: 10,
+            },
+          }
+        },
+        y: {
+          grid: {
+            color: border,
+            drawBorder: false,
+          },
+          border: {
+            display: false,
+            dash: [3, 3],
+          },
+          ticks: {
+            color: faint,
+            font: {
+              family: "'IBM Plex Mono', monospace",
+              size: 10,
+            },
+            callback: function (value) {
+              if (value >= 1000) {
+                return 'KES ' + (value / 1000).toFixed(0) + 'K';
+              }
+              return 'KES ' + value;
+            }
+          },
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+
+  /* ── Re-skin chart when theme toggles ── */
+  document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setTimeout(function () {
+        var s2      = getComputedStyle(document.documentElement);
+        var brand2  = s2.getPropertyValue('--color-brand').trim();
+        var brandS2 = s2.getPropertyValue('--color-brand-strong').trim();
+        var border2 = s2.getPropertyValue('--color-border').trim();
+        var faint2  = s2.getPropertyValue('--color-ink-faint').trim();
+        var raised2 = s2.getPropertyValue('--color-bg-raised').trim();
+        var ink2    = s2.getPropertyValue('--color-ink').trim();
+
+        chart.data.datasets[0].backgroundColor = function (context) {
+          return context.dataIndex === values.length - 1 ? brandS2 : brand2;
+        };
+
+        chart.options.plugins.tooltip.backgroundColor = raised2;
+        chart.options.plugins.tooltip.borderColor     = border2;
+        chart.options.plugins.tooltip.titleColor      = faint2;
+        chart.options.plugins.tooltip.bodyColor       = ink2;
+        chart.options.scales.x.ticks.color            = faint2;
+        chart.options.scales.y.ticks.color            = faint2;
+        chart.options.scales.y.grid.color             = border2;
+
+        chart.update();
+      }, 220);
+    });
+  });
+
+})();
+</script>
 {% endblock %}

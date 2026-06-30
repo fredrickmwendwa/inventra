@@ -1,0 +1,9 @@
+      <!-- Footer -->
+      <footer class="sf-footer">
+        <div>© {% now "Y" %} {{ tenant.name|default:"Inventra" }} · Powered by Inventra</div>
+        <div class="sf-footer__links">
+          <a href="{% url 'accounts:profile' %}">Profile</a>
+          <a href="{% url 'accounts:staff_list' %}">Team</a>
+          <span class="sf-small">v1.0</span>
+        </div>
+      </footer>

@@ -1,156 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register — Inventra</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create account — Inventra</title>
   {% load static %}
+
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('inventra-theme');
+        var d = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
   <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 
-  <div class="auth-wrapper">
-    <div class="auth-card register-card">
+  <div class="sf-auth-shell">
 
-      <!-- Brand -->
-      <div class="auth-brand">
-        <div class="logo-mark">I</div>
-        <h1>Create Your Account</h1>
-        <p>Set up your business workspace in minutes</p>
+    <!-- ── Brand panel ── -->
+    <section class="sf-auth-brand" aria-hidden="true">
+
+      <div class="sf-auth-brand__mark">
+        <span class="sf-auth-brand__mark-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                  stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Inventra
       </div>
 
-      <!-- Messages -->
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
-            {{ message }}
+      <div class="sf-auth-brand__body">
+        <p class="sf-auth-brand__quote">
+          Set up your business<br>workspace in minutes.
+        </p>
+
+        <div class="sf-auth-ledger">
+          <div class="sf-auth-ledger__row">
+            <span class="sf-auth-ledger__label">Setup time</span>
+            <span class="sf-auth-ledger__value sf-num">&lt; 2 min</span>
           </div>
-        {% endfor %}
-      {% endif %}
-
-      <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <!-- Business Info Section -->
-        <p class="form-section-label">Business Information</p>
-
-        <div class="form-grid">
-          <!-- Business Name -->
-          <div class="form-group full-width">
-            <label>Business Name</label>
-            {{ business_form.name }}
-            {% if business_form.name.errors %}
-              <span class="field-error">{{ business_form.name.errors|join:", " }}</span>
-            {% endif %}
+          <div class="sf-auth-ledger__row">
+            <span class="sf-auth-ledger__label">Products</span>
+            <span class="sf-auth-ledger__value">Unlimited</span>
           </div>
-
-          <!-- Business Email -->
-          <div class="form-group">
-            <label>Business Email</label>
-            {{ business_form.email }}
-            {% if business_form.email.errors %}
-              <span class="field-error">{{ business_form.email.errors|join:", " }}</span>
-            {% endif %}
+          <div class="sf-auth-ledger__row">
+            <span class="sf-auth-ledger__label">Staff accounts</span>
+            <span class="sf-auth-ledger__value">Unlimited</span>
           </div>
-
-          <!-- Phone -->
-          <div class="form-group">
-            <label>Phone Number</label>
-            {{ business_form.phone }}
-            {% if business_form.phone.errors %}
-              <span class="field-error">{{ business_form.phone.errors|join:", " }}</span>
-            {% endif %}
+          <div class="sf-auth-ledger__row">
+            <span class="sf-auth-ledger__label">Data isolation</span>
+            <span class="sf-auth-ledger__value">Per business</span>
           </div>
-
-          <!-- Address -->
-          <div class="form-group full-width">
-            <label>Business Address</label>
-            {{ business_form.address }}
-            {% if business_form.address.errors %}
-              <span class="field-error">{{ business_form.address.errors|join:", " }}</span>
-            {% endif %}
-          </div>
-
-          <!-- Logo -->
-          <div class="form-group full-width">
-            <label>Business Logo (optional)</label>
-            {{ business_form.logo }}
-            {% if business_form.logo.errors %}
-              <span class="field-error">{{ business_form.logo.errors|join:", " }}</span>
-            {% endif %}
+          <div class="sf-auth-ledger__row">
+            <span class="sf-auth-ledger__label">Role-based access</span>
+            <span class="sf-auth-ledger__value">✓</span>
           </div>
         </div>
+      </div>
 
-        <div class="section-divider"></div>
+      <div class="sf-auth-brand__footer">
+        Supermarkets · Pharmacies · Hardware stores · Wholesalers · Retail shops
+      </div>
 
-        <!-- Owner Info Section -->
-        <p class="form-section-label">Owner Account</p>
+    </section>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>First Name</label>
-            {{ owner_form.first_name }}
-            {% if owner_form.first_name.errors %}
-              <span class="field-error">{{ owner_form.first_name.errors|join:", " }}</span>
-            {% endif %}
-          </div>
+    <!-- ── Form panel ── -->
+    <section class="sf-auth-form-panel" style="align-items:flex-start; padding-top:var(--space-10);">
 
-          <div class="form-group">
-            <label>Last Name</label>
-            {{ owner_form.last_name }}
-            {% if owner_form.last_name.errors %}
-              <span class="field-error">{{ owner_form.last_name.errors|join:", " }}</span>
-            {% endif %}
-          </div>
+      <!-- Theme toggle -->
+      <div class="sf-auth-form-panel__top">
+        <button type="button"
+                class="sf-icon-btn"
+                data-theme-toggle
+                aria-label="Toggle dark mode">
+          <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
+                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
 
-          <div class="form-group">
-            <label>Username</label>
-            {{ owner_form.username }}
-            {% if owner_form.username.errors %}
-              <span class="field-error">{{ owner_form.username.errors|join:", " }}</span>
-            {% endif %}
-          </div>
+      <div class="sf-auth-form-wrap sf-auth-form-wrap--wide">
 
-          <div class="form-group">
-            <label>Personal Email</label>
-            {{ owner_form.email }}
-            {% if owner_form.email.errors %}
-              <span class="field-error">{{ owner_form.email.errors|join:", " }}</span>
-            {% endif %}
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            {{ owner_form.password }}
-            {% if owner_form.password.errors %}
-              <span class="field-error">{{ owner_form.password.errors|join:", " }}</span>
-            {% endif %}
-          </div>
-
-          <div class="form-group">
-            <label>Confirm Password</label>
-            {{ owner_form.confirm_password }}
-            {% if owner_form.confirm_password.errors %}
-              <span class="field-error">{{ owner_form.confirm_password.errors|join:", " }}</span>
-            {% endif %}
-          </div>
+        <!-- Heading -->
+        <div class="sf-auth-heading">
+          <h1 class="sf-page-title">Create your account</h1>
+          <p class="sf-body">Set up your business and owner account below.</p>
         </div>
 
-        {% if owner_form.non_field_errors %}
-          <div class="alert alert-error">
-            {{ owner_form.non_field_errors|join:", " }}
-          </div>
+        <!-- Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="sf-alert sf-alert--{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %}"
+                 role="alert">
+              <span class="sf-alert__icon" aria-hidden="true">
+                {% if message.tags == 'success' %}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% else %}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                {% endif %}
+              </span>
+              <div class="sf-alert__body">
+                <p class="sf-alert__message">{{ message }}</p>
+              </div>
+              <button type="button" class="sf-alert__close" data-alert-close aria-label="Dismiss">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          {% endfor %}
         {% endif %}
 
-        <button type="submit" class="btn-auth">Create Account →</button>
-      </form>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
 
-      <div class="auth-footer">
-        Already have an account? <a href="{% url 'tenants:login' %}">Sign in</a>
+          <!-- ── Business information ── -->
+          <div class="sf-ledger-rule">
+            <span class="sf-ledger-rule__label">Business</span>
+          </div>
+
+          <div class="sf-form-grid-2">
+
+            <div class="sf-field sf-form-full">
+              <label class="sf-label" for="b_name">
+                Business name <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if business_form.name.errors %}has-error{% endif %}"
+                     type="text" id="b_name" name="name"
+                     value="{{ business_form.name.value|default:'' }}"
+                     placeholder="e.g. Acme Supplies Ltd."
+                     autofocus>
+              {% if business_form.name.errors %}
+                <p class="sf-error-text">{{ business_form.name.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="b_email">
+                Business email <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if business_form.email.errors %}has-error{% endif %}"
+                     type="email" id="b_email" name="email"
+                     value="{{ business_form.email.value|default:'' }}"
+                     placeholder="info@yourbusiness.co.ke">
+              {% if business_form.email.errors %}
+                <p class="sf-error-text">{{ business_form.email.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="b_phone">Phone</label>
+              <input class="sf-input"
+                     type="text" id="b_phone" name="phone"
+                     value="{{ business_form.phone.value|default:'' }}"
+                     placeholder="+254 700 000 000">
+            </div>
+
+            <div class="sf-field sf-form-full">
+              <label class="sf-label" for="b_address">
+                Address <span class="sf-label__optional">(optional)</span>
+              </label>
+              <textarea class="sf-textarea"
+                        id="b_address" name="address"
+                        rows="2"
+                        placeholder="Nairobi, Kenya">{{ business_form.address.value|default:'' }}</textarea>
+            </div>
+
+          </div>
+
+          <!-- ── Owner account ── -->
+          <div class="sf-ledger-rule">
+            <span class="sf-ledger-rule__label">Owner account</span>
+          </div>
+
+          <div class="sf-form-grid-2">
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_first">
+                First name <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if owner_form.first_name.errors %}has-error{% endif %}"
+                     type="text" id="o_first" name="first_name"
+                     value="{{ owner_form.first_name.value|default:'' }}"
+                     placeholder="Jane">
+              {% if owner_form.first_name.errors %}
+                <p class="sf-error-text">{{ owner_form.first_name.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_last">
+                Last name <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if owner_form.last_name.errors %}has-error{% endif %}"
+                     type="text" id="o_last" name="last_name"
+                     value="{{ owner_form.last_name.value|default:'' }}"
+                     placeholder="Wanjiku">
+              {% if owner_form.last_name.errors %}
+                <p class="sf-error-text">{{ owner_form.last_name.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_username">
+                Username <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if owner_form.username.errors %}has-error{% endif %}"
+                     type="text" id="o_username" name="username"
+                     value="{{ owner_form.username.value|default:'' }}"
+                     placeholder="jane.wanjiku"
+                     autocomplete="username">
+              {% if owner_form.username.errors %}
+                <p class="sf-error-text">{{ owner_form.username.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_email">
+                Personal email <span class="sf-label__optional">(optional)</span>
+              </label>
+              <input class="sf-input"
+                     type="email" id="o_email" name="email"
+                     value="{{ owner_form.email.value|default:'' }}"
+                     placeholder="jane@email.com">
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_password">
+                Password <span class="sf-label__required">*</span>
+              </label>
+              <div class="sf-input-with-icon" style="position:relative;">
+                <span class="sf-input-with-icon__icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="11" width="16" height="9" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <input class="sf-input {% if owner_form.password.errors %}has-error{% endif %}"
+                       type="password" id="o_password" name="password"
+                       placeholder="Min. 8 characters"
+                       autocomplete="new-password"
+                       style="padding-right:var(--space-8);">
+                <button type="button"
+                        class="sf-input-toggle-visibility"
+                        data-toggle-password="o_password"
+                        aria-label="Show password">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                  </svg>
+                </button>
+              </div>
+              {% if owner_form.password.errors %}
+                <p class="sf-error-text">{{ owner_form.password.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="sf-field">
+              <label class="sf-label" for="o_confirm">
+                Confirm password <span class="sf-label__required">*</span>
+              </label>
+              <div class="sf-input-with-icon" style="position:relative;">
+                <span class="sf-input-with-icon__icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="11" width="16" height="9" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <input class="sf-input {% if owner_form.confirm_password.errors %}has-error{% endif %}"
+                       type="password" id="o_confirm" name="confirm_password"
+                       placeholder="Re-enter password"
+                       autocomplete="new-password"
+                       style="padding-right:var(--space-8);">
+                <button type="button"
+                        class="sf-input-toggle-visibility"
+                        data-toggle-password="o_confirm"
+                        aria-label="Show password">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                  </svg>
+                </button>
+              </div>
+              {% if owner_form.confirm_password.errors %}
+                <p class="sf-error-text">{{ owner_form.confirm_password.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+
+          </div>
+
+          <!-- Non-field errors -->
+          {% if owner_form.non_field_errors %}
+            <div class="sf-alert sf-alert--danger" role="alert">
+              <span class="sf-alert__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <div class="sf-alert__body">
+                <p class="sf-alert__message">{{ owner_form.non_field_errors|join:" " }}</p>
+              </div>
+            </div>
+          {% endif %}
+
+          <button type="submit"
+                  class="sf-btn sf-btn--primary sf-btn--full sf-btn--lg"
+                  style="margin-top:var(--space-2);">
+            Create account
+          </button>
+        </form>
+
+        <p class="sf-auth-footer-text">
+          Already have an account?
+          <a href="{% url 'tenants:login' %}">Sign in</a>
+        </p>
+
       </div>
+    </section>
 
-    </div>
   </div>
 
+  <script src="{% static 'js/app.js' %}"></script>
 </body>
 </html>

@@ -1,145 +1,144 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ sale.sale_number }} — Inventra{% endblock %}
-{% block topbar_title %}Sale Detail{% endblock %}
+{% block title %}{{ sale.sale_number }}{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/sales.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'sales:sale_list' %}">Sales</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">{{ sale.sale_number }}</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'sales:sale_list' %}">Sales</a>
-      <span class="separator">›</span>
-      <span>{{ sale.sale_number }}</span>
-    </div>
-    <h1>{{ sale.sale_number }}</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'sales:sale_list' %}" class="btn btn-secondary">← Back</a>
-  </div>
-</div>
-
-<!-- Sale Header Card -->
-<div class="sale-detail-header">
-  <div class="sale-header-top">
-
-    <!-- Left: number + status -->
+<!-- Sale hero -->
+<div class="sf-sale-hero">
+  <div class="sf-sale-hero__top">
     <div>
-      <div class="sale-number-big">{{ sale.sale_number }}</div>
-      <div class="sale-meta">
+      <div class="sf-sale-hero__number">{{ sale.sale_number }}</div>
+      <div class="sf-sale-hero__meta">
         Created {{ sale.created_at|date:"F d, Y \a\t H:i" }}
-        {% if sale.created_by %}
-          by {{ sale.created_by.get_full_name|default:sale.created_by.username }}
-        {% endif %}
+        {% if sale.created_by %} by {{ sale.created_by.get_full_name|default:sale.created_by.username }}{% endif %}
       </div>
-      <div style="margin-top:12px;">
+      <div style="margin-top:var(--space-3);">
         {% if sale.status == 'confirmed' %}
-          <span class="badge badge-success" style="font-size:13px; padding:5px 14px;">
-            ✅ Confirmed
+          <span class="sf-badge sf-badge--success" style="font-size:var(--text-small); padding:5px 12px;">
+            <span class="sf-status-dot sf-status-dot--confirmed"></span>Confirmed
           </span>
         {% elif sale.status == 'draft' %}
-          <span class="badge badge-warning" style="font-size:13px; padding:5px 14px;">
-            📝 Draft
+          <span class="sf-badge sf-badge--warning" style="font-size:var(--text-small); padding:5px 12px;">
+            <span class="sf-status-dot sf-status-dot--draft"></span>Draft
           </span>
         {% else %}
-          <span class="badge badge-danger" style="font-size:13px; padding:5px 14px;">
-            ❌ Cancelled
+          <span class="sf-badge sf-badge--danger" style="font-size:var(--text-small); padding:5px 12px;">
+            <span class="sf-status-dot sf-status-dot--cancelled"></span>Cancelled
           </span>
         {% endif %}
       </div>
     </div>
 
-    <!-- Right: actions -->
-    <div class="sale-header-actions">
+    <div class="sf-sale-hero__actions">
       {% if sale.status == 'draft' %}
         <a href="{% url 'sales:confirm_sale' sale.id %}"
-           class="btn btn-success"
+           class="sf-btn sf-btn--success"
            data-confirm="Confirm sale {{ sale.sale_number }}? Stock will be deducted.">
-          ✅ Confirm Sale
+          Confirm sale
         </a>
-        <a href="{% url 'sales:edit_sale' sale.id %}"
-           class="btn btn-primary">Edit</a>
+        <a href="{% url 'sales:edit_sale' sale.id %}" class="sf-btn sf-btn--secondary">Edit</a>
         <a href="{% url 'sales:cancel_sale' sale.id %}"
-           class="btn btn-danger"
-           data-confirm="Cancel this sale?">
-          Cancel
-        </a>
+           class="sf-btn sf-btn--danger"
+           data-confirm="Cancel this sale?">Cancel</a>
       {% elif sale.status == 'confirmed' %}
         <a href="{% url 'sales:cancel_sale' sale.id %}"
-           class="btn btn-danger"
+           class="sf-btn sf-btn--danger"
            data-confirm="Cancel this confirmed sale? Stock will be restored.">
-          Cancel & Restore Stock
+          Cancel &amp; restore stock
         </a>
       {% endif %}
       {% if sale.status != 'confirmed' %}
         <a href="{% url 'sales:delete_sale' sale.id %}"
-           class="btn btn-ghost"
+           class="sf-btn sf-btn--ghost"
            data-confirm="Delete sale {{ sale.sale_number }}? This cannot be undone.">
           Delete
         </a>
       {% endif %}
     </div>
-
   </div>
 
-  <!-- Customer Info Strip -->
-  <div class="customer-strip">
-    <div class="customer-item">
-      <div class="customer-icon">👤</div>
-      <div class="customer-text">
-        <div class="customer-label">Customer</div>
-        <div class="customer-value">{{ sale.customer_name }}</div>
+  <!-- Customer strip -->
+  <div class="sf-customer-strip">
+    <div class="sf-customer-item">
+      <div class="sf-customer-item__icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M4 20a8 8 0 0116 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sf-customer-item__label">Customer</div>
+        <div class="sf-customer-item__value">{{ sale.customer_name }}</div>
       </div>
     </div>
-    <div class="customer-item">
-      <div class="customer-icon">📞</div>
-      <div class="customer-text">
-        <div class="customer-label">Phone</div>
-        <div class="customer-value">{{ sale.customer_phone|default:"Not provided" }}</div>
+    <div class="sf-customer-item">
+      <div class="sf-customer-item__icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.68 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0122 16.92z"
+                stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sf-customer-item__label">Phone</div>
+        <div class="sf-customer-item__value sf-num">{{ sale.customer_phone|default:"Not provided" }}</div>
       </div>
     </div>
-    <div class="customer-item">
-      <div class="customer-icon">✉️</div>
-      <div class="customer-text">
-        <div class="customer-label">Email</div>
-        <div class="customer-value">{{ sale.customer_email|default:"Not provided" }}</div>
+    <div class="sf-customer-item">
+      <div class="sf-customer-item__icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M2 7l10 6 10-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sf-customer-item__label">Email</div>
+        <div class="sf-customer-item__value">{{ sale.customer_email|default:"Not provided" }}</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Line Items -->
-<div class="card">
-  <div class="card-header">
+<!-- Line items -->
+<div class="sf-card sf-mb-4">
+  <div class="sf-card__header">
     <div>
-      <h2>Line Items</h2>
-      <p>{{ sale.total_items }} item{{ sale.total_items|pluralize }}</p>
+      <h2 class="sf-card-title">Line items</h2>
+      <p class="sf-small" style="margin-top:2px;">{{ sale.total_items }} item{{ sale.total_items|pluralize }}</p>
     </div>
   </div>
 
-  <div class="table-wrapper">
-    <table class="line-items-table">
+  <div class="sf-table-wrap">
+    <table class="sf-table">
       <thead>
         <tr>
           <th>Product</th>
-          <th>Unit Price</th>
-          <th>Quantity</th>
-          <th class="text-right">Subtotal</th>
+          <th class="right">Unit price</th>
+          <th class="right">Quantity</th>
+          <th class="right">Subtotal</th>
         </tr>
       </thead>
       <tbody>
         {% for item in sale.items.all %}
         <tr>
           <td><strong>{{ item.product.name }}</strong></td>
-          <td>KES {{ item.unit_price|floatformat:2 }}</td>
-          <td>{{ item.quantity }}</td>
-          <td class="text-right font-bold">
+          <td class="right sf-num">KES {{ item.unit_price|floatformat:2 }}</td>
+          <td class="right sf-num">{{ item.quantity }}</td>
+          <td class="right sf-num" style="font-weight:600;">
             KES {{ item.subtotal|floatformat:2 }}
           </td>
         </tr>
@@ -147,14 +146,8 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="3" class="text-right text-muted">Total</td>
-          <td class="text-right">
-            KES {{ sale.total_amount|floatformat:2 }}
-          </td>
-        </tr>
-        <tr class="total-row">
-          <td colspan="3" class="text-right">Amount Due</td>
-          <td class="text-right text-success">
+          <td colspan="3" class="right sf-small" style="padding:var(--space-4);">Total</td>
+          <td class="right sf-num" style="padding:var(--space-4); font-size:1.125rem; font-weight:700; color:var(--color-brand-strong);">
             KES {{ sale.total_amount|floatformat:2 }}
           </td>
         </tr>
@@ -163,15 +156,14 @@
   </div>
 </div>
 
-<!-- Notes -->
 {% if sale.notes %}
-<div class="card mt-16">
-  <div class="card-header">
-    <h2>📋 Notes</h2>
+<div class="sf-card">
+  <div class="sf-card__header">
+    <h2 class="sf-card-title">Notes</h2>
   </div>
-  <p style="color:var(--text-soft); font-size:13px; line-height:1.7;">
-    {{ sale.notes }}
-  </p>
+  <div class="sf-card__body">
+    <p class="sf-body" style="margin:0;">{{ sale.notes }}</p>
+  </div>
 </div>
 {% endif %}
 

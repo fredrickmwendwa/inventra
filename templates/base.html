@@ -1,186 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Inventra{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Inventra{% endblock %} · {{ tenant.name|default:"Inventra" }}</title>
+
   {% load static %}
 
-  <!-- Fonts -->
+  <!-- Theme bootstrap — prevents flash before app.js runs -->
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('inventra-theme');
+        var d = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Fonts: Fraunces (display) · Inter (body) · IBM Plex Mono (data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Core CSS -->
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <!-- Design system -->
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   <link rel="stylesheet" href="{% static 'css/components.css' %}">
-
-  <!-- Extra CSS per page -->
   {% block extra_css %}{% endblock %}
 </head>
 <body>
+  <a href="#sf-main-content" class="sf-skip-link">Skip to content</a>
 
-  <!-- Django messages passed to JS -->
-  {% include 'components/messages.html' %}
+    <!-- Django messages — rendered as toasts by app.js -->
+  {% if messages %}
+    <div aria-hidden="true" style="display:none;">
+      {% for message in messages %}
+        <span class="sf-dj-message"
+          data-type="{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">{{ message }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-  <div class="app-layout">
+  <div class="sf-shell" id="sfShell">
+    <!-- Mobile scrim -->
+    <div class="sf-scrim" data-mobile-nav-close aria-hidden="true"></div>
 
-    <!-- ======= SIDEBAR ======= -->
-    <aside class="sidebar" id="sidebar">
 
-      <!-- Toggle button -->
-      <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar">
-        <span class="toggle-arrow">‹</span>
-      </button>
+    {% include "components/sidebar.html" %}
 
-      <!-- Brand -->
-      <div class="sidebar-brand">
-        <div class="brand-logo">I</div>
-        <div class="brand-text">
-          <h2>Inventra</h2>
-          <span>Management Suite</span>
-        </div>
-      </div>
+    <div class="sf-main">
+      {% include "components/topbar.html" %}
 
-      <!-- Navigation -->
-      <nav class="sidebar-nav">
-
-        <span class="nav-section-label">Main</span>
-
-        <a href="{% url 'dashboard:home' %}" class="nav-item">
-          <span class="nav-icon">⬛</span>
-          <span class="nav-label">Dashboard</span>
-          <span class="nav-tooltip">Dashboard</span>
-        </a>
-
-        <span class="nav-section-label">Inventory</span>
-
-        <a href="{% url 'inventory:product_list' %}" class="nav-item">
-          <span class="nav-icon">📦</span>
-          <span class="nav-label">Products</span>
-          <span class="nav-tooltip">Products</span>
-        </a>
-
-        <a href="{% url 'inventory:category_list' %}" class="nav-item">
-          <span class="nav-icon">🏷️</span>
-          <span class="nav-label">Categories</span>
-          <span class="nav-tooltip">Categories</span>
-        </a>
-
-        <a href="{% url 'inventory:stock_movements' %}" class="nav-item">
-          <span class="nav-icon">📊</span>
-          <span class="nav-label">Stock Movements</span>
-          <span class="nav-tooltip">Stock Movements</span>
-        </a>
-
-        <span class="nav-section-label">Sales</span>
-
-        <a href="{% url 'sales:sale_list' %}" class="nav-item">
-          <span class="nav-icon">🧾</span>
-          <span class="nav-label">Sales</span>
-          <span class="nav-tooltip">Sales</span>
-        </a>
-
-        <span class="nav-section-label">People</span>
-
-        <a href="{% url 'suppliers:supplier_list' %}" class="nav-item">
-          <span class="nav-icon">🏢</span>
-          <span class="nav-label">Suppliers</span>
-          <span class="nav-tooltip">Suppliers</span>
-        </a>
-
-        <a href="{% url 'accounts:staff_list' %}" class="nav-item">
-          <span class="nav-icon">👥</span>
-          <span class="nav-label">Staff</span>
-          <span class="nav-tooltip">Staff</span>
-        </a>
-
-        <span class="nav-section-label">Settings</span>
-
-        <a href="{% url 'accounts:profile' %}" class="nav-item">
-          <span class="nav-icon">👤</span>
-          <span class="nav-label">Profile</span>
-          <span class="nav-tooltip">Profile</span>
-        </a>
-
-      </nav>
-
-      <!-- Sidebar Footer: User info -->
-      <div class="sidebar-footer">
-        <div class="sidebar-user" data-dropdown="userDropdown">
-          {% if user_profile and user_profile.avatar %}
-            <img src="{{ user_profile.avatar.url }}" alt="avatar"
-                 class="avatar" width="34" height="34">
-          {% else %}
-            <div class="avatar-placeholder" style="width:34px;height:34px;font-size:13px;">
-              {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-            </div>
-          {% endif %}
-          <div class="user-info">
-            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-            <div class="user-role">{{ user_profile.role|default:"—" }}</div>
-          </div>
-        </div>
-
-        <!-- User dropdown -->
-        <div class="dropdown-menu" id="userDropdown">
-          <div class="dropdown-header">
-            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-            <span>{{ tenant.name|default:"" }}</span>
-          </div>
-          <a href="{% url 'accounts:profile' %}" class="dropdown-item">👤 My Profile</a>
-          <div class="dropdown-divider"></div>
-          <a href="{% url 'tenants:logout' %}" class="dropdown-item danger">🚪 Sign Out</a>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- Sidebar overlay for mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- ======= MAIN CONTENT ======= -->
-    <div class="main-content" id="mainContent">
-
-      <!-- Topbar -->
-      <header class="topbar">
-        <div class="topbar-left">
-          <!-- Mobile hamburger -->
-          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-          <span class="topbar-title">{% block topbar_title %}{% endblock %}</span>
-        </div>
-        <div class="topbar-right">
-          <!-- Tenant badge -->
-          {% if tenant %}
-            <div class="topbar-tenant">
-              <span class="tenant-dot"></span>
-              {{ tenant.name }}
-            </div>
-          {% endif %}
-          <!-- Profile link -->
-          <a href="{% url 'accounts:profile' %}" class="topbar-btn" title="Profile">👤</a>
-          <!-- Logout -->
-          <a href="{% url 'tenants:logout' %}" class="topbar-btn" title="Sign out">🚪</a>
-        </div>
-      </header>
-
-      <!-- Page content -->
-      <main class="page-body">
+        <!-- Page content -->
+      <main id="sf-main-content" class="sf-content sf-page-enter">
+        {% block breadcrumb %}{% endblock %}
         {% block content %}{% endblock %}
       </main>
 
+      {% include "components/footer.html" %}
     </div>
   </div>
 
-  <!-- Toast container -->
-  <div class="toast-container" id="toastContainer"></div>
+  {% block modals %}{% endblock %}
 
-  <!-- Core JS -->
-  <script src="{% static 'js/sidebar.js' %}"></script>
-  <script src="{% static 'js/main.js' %}"></script>
-
-  <!-- Extra JS per page -->
+  <script src="{% static 'js/app.js' %}"></script>
   {% block extra_js %}{% endblock %}
-
 </body>
 </html>
+
+
+
+
+

@@ -1,144 +1,157 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Products — Inventra{% endblock %}
-{% block topbar_title %}Products{% endblock %}
+{% block title %}Products{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Products</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <span>Products</span>
-    </div>
-    <h1>Products</h1>
-    <p>{{ total_products }} product{{ total_products|pluralize }} found</p>
+<div class="sf-flex sf-justify-between sf-items-center sf-mb-4" style="flex-wrap:wrap; gap:var(--space-3);">
+  <div>
+    <h1 class="sf-page-title">Products</h1>
+    <p class="sf-body" style="margin-top:4px;">
+      {{ total_products }} product{{ total_products|pluralize }} in your catalog.
+    </p>
   </div>
-  <div class="page-header-right">
-    <a href="{% url 'inventory:add_product' %}" class="btn btn-primary">+ Add Product</a>
-  </div>
+  <a href="{% url 'inventory:add_product' %}" class="sf-btn sf-btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Add product
+  </a>
 </div>
 
-<!-- Filter Bar -->
-<div class="filter-bar">
-  <form method="GET" style="display:flex; gap:12px; flex:1; flex-wrap:wrap;">
-    <div class="search-input-wrapper" style="flex:1; min-width:200px;">
-      <span class="search-icon">🔍</span>
-      <input type="text" name="q" value="{{ q }}" placeholder="Search products...">
-    </div>
-    <select name="category" class="form-control" style="width:180px;">
-      <option value="">All Categories</option>
-      {% for cat in categories %}
-        <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>
-          {{ cat.name }}
-        </option>
-      {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-secondary">Filter</button>
-    {% if q or category_id or stock_filter %}
-      <a href="{% url 'inventory:product_list' %}" class="btn btn-ghost">Clear</a>
-    {% endif %}
+<!-- Toolbar -->
+<div class="sf-toolbar">
+  <form method="GET" class="sf-toolbar__search" role="search">
+    <span class="sf-toolbar__search-icon" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <input type="search" name="q" value="{{ q }}" placeholder="Search products, SKUs…">
   </form>
+
+  <select name="category" form="sf-category-filter-form" class="sf-select" style="max-width:180px;" onchange="this.form.submit()">
+    <option value="">All categories</option>
+    {% for cat in categories %}
+      <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+    {% endfor %}
+  </select>
+  <form id="sf-category-filter-form" method="GET" style="display:none;">
+    <input type="hidden" name="q" value="{{ q }}">
+  </form>
+
+  <div class="sf-toolbar__spacer"></div>
+
+  <a href="?{% if q %}q={{ q }}&{% endif %}" class="sf-filter-chip {% if not stock_filter %}is-active{% endif %}">
+    All stock
+  </a>
+  <a href="?{% if q %}q={{ q }}&{% endif %}stock=low" class="sf-filter-chip {% if stock_filter == 'low' %}is-active{% endif %}">
+    ⚠ Low stock
+  </a>
+  <a href="?{% if q %}q={{ q }}&{% endif %}stock=out" class="sf-filter-chip {% if stock_filter == 'out' %}is-active{% endif %}">
+    ✕ Out of stock
+  </a>
 </div>
 
-<!-- Stock Filter Chips -->
-<div class="filter-chips">
-  <a href="?{% if q %}q={{ q }}&{% endif %}" class="filter-chip {% if not stock_filter %}active{% endif %}">All Stock</a>
-  <a href="?{% if q %}q={{ q }}&{% endif %}stock=low" class="filter-chip {% if stock_filter == 'low' %}active{% endif %}">⚠️ Low Stock</a>
-  <a href="?{% if q %}q={{ q }}&{% endif %}stock=out" class="filter-chip {% if stock_filter == 'out' %}active{% endif %}">❌ Out of Stock</a>
-</div>
-
-<!-- Table -->
-<div class="card">
+<div class="sf-card">
   {% if page_obj.object_list %}
-    <div class="table-wrapper">
-      <table>
+    <div class="sf-table-wrap">
+      <table class="sf-table">
         <thead>
           <tr>
             <th>Product</th>
             <th>Category</th>
-            <th>Unit Price</th>
-            <th>Cost Price</th>
+            <th class="right">Sell price</th>
+            <th class="right">Cost price</th>
             <th>Stock</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th class="right">Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for product in page_obj %}
-          <tr>
-            <!-- Product -->
+          <tr data-href="{% url 'inventory:product_detail' product.id %}">
             <td>
-              <div class="product-cell">
-                {% if product.image %}
-                  <img src="{{ product.image.url }}" class="product-image" alt="">
-                {% else %}
-                  <div class="product-image-placeholder">📦</div>
-                {% endif %}
-                <div class="product-cell-info">
-                  <strong>{{ product.name }}</strong>
-                  <span>{{ product.sku|default:"No SKU" }}</span>
+              <div class="sf-entity-cell">
+                <div class="sf-product-cell__thumb">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="">
+                  {% else %}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                            stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {% endif %}
+                </div>
+                <div class="sf-entity-cell__body">
+                  <div class="sf-entity-cell__name">{{ product.name }}</div>
+                  <div class="sf-entity-cell__sub">{{ product.sku|default:"No SKU" }}</div>
                 </div>
               </div>
             </td>
-
-            <!-- Category -->
-            <td>{{ product.category.name|default:"—" }}</td>
-
-            <!-- Unit Price -->
-            <td class="font-medium">KES {{ product.unit_price|floatformat:2 }}</td>
-
-            <!-- Cost Price -->
-            <td class="text-muted">KES {{ product.cost_price|floatformat:2 }}</td>
-
-            <!-- Stock -->
             <td>
-              <div class="stock-bar-wrapper">
-                {% if product.is_out_of_stock %}
-                  <div class="stock-bar"><div class="stock-bar-fill out" style="width:100%"></div></div>
-                  <span class="stock-number text-danger">0</span>
-                {% elif product.is_low_stock %}
-                  <div class="stock-bar">
-                    <div class="stock-bar-fill low"
-                         style="width:{% widthratio product.stock_quantity product.reorder_level 100 %}%">
-                    </div>
-                  </div>
-                  <span class="stock-number text-warning">{{ product.stock_quantity }}</span>
-                {% else %}
-                  <div class="stock-bar">
-                    <div class="stock-bar-fill good" style="width:100%"></div>
-                  </div>
-                  <span class="stock-number text-success">{{ product.stock_quantity }}</span>
-                {% endif %}
-              </div>
-            </td>
-
-            <!-- Status -->
-            <td>
-              {% if product.is_out_of_stock %}
-                <span class="badge badge-danger">Out of Stock</span>
-              {% elif product.is_low_stock %}
-                <span class="badge badge-warning">Low Stock</span>
-              {% elif product.is_active %}
-                <span class="badge badge-success">Active</span>
+              {% if product.category %}
+                <span class="sf-badge sf-badge--brand">{{ product.category.name }}</span>
               {% else %}
-                <span class="badge badge-neutral">Inactive</span>
+                <span class="sf-small">—</span>
               {% endif %}
             </td>
-
-            <!-- Actions -->
+            <td class="right sf-num">KES {{ product.unit_price|floatformat:2 }}</td>
+            <td class="right sf-num sf-small">KES {{ product.cost_price|floatformat:2 }}</td>
             <td>
-              <div class="table-actions">
-                <a href="{% url 'inventory:product_detail' product.id %}"
-                   class="btn btn-ghost btn-sm">View</a>
+              <div class="sf-stock-bar">
+                <div class="sf-stock-bar__track">
+                  {% if product.is_out_of_stock %}
+                    <div class="sf-stock-bar__fill sf-stock-bar__fill--danger" style="width:100%"></div>
+                  {% elif product.is_low_stock %}
+                    <div class="sf-stock-bar__fill sf-stock-bar__fill--low"
+                         style="width:{% widthratio product.stock_quantity product.reorder_level 100 %}%"></div>
+                  {% else %}
+                    <div class="sf-stock-bar__fill sf-stock-bar__fill--good" style="width:100%"></div>
+                  {% endif %}
+                </div>
+                <span class="sf-stock-bar__label
+                  {% if product.is_out_of_stock %}sf-stock-bar__label--danger
+                  {% elif product.is_low_stock %}sf-stock-bar__label--low
+                  {% else %}sf-stock-bar__label--good{% endif %}">
+                  {{ product.stock_quantity }}
+                </span>
+              </div>
+            </td>
+            <td>
+              {% if product.is_out_of_stock %}
+                <span class="sf-badge sf-badge--danger">Out of stock</span>
+              {% elif product.is_low_stock %}
+                <span class="sf-badge sf-badge--warning">Low stock</span>
+              {% elif product.is_active %}
+                <span class="sf-badge sf-badge--success">Active</span>
+              {% else %}
+                <span class="sf-badge sf-badge--neutral">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="sf-table__actions">
+              <div class="sf-table__action-group">
                 <a href="{% url 'inventory:edit_product' product.id %}"
-                   class="btn btn-secondary btn-sm">Edit</a>
+                   class="sf-btn sf-btn--ghost sf-btn--sm"
+                   onclick="event.stopPropagation()">Edit</a>
                 <a href="{% url 'inventory:delete_product' product.id %}"
-                   class="btn btn-danger btn-sm"
+                   class="sf-btn sf-btn--danger sf-btn--sm"
+                   onclick="event.stopPropagation()"
                    data-confirm="Delete '{{ product.name }}'? This cannot be undone.">
                   Delete
                 </a>
@@ -149,9 +162,11 @@
         </tbody>
       </table>
     </div>
-    {% include 'components/pagination.html' %}
+    <div class="sf-card__footer">
+      {% include 'components/pagination.html' %}
+    </div>
   {% else %}
-    {% include 'components/empty_state.html' with icon="📦" title="No products found" message="Add your first product or adjust your filters." action_url="/inventory/products/add/" action_label="Add Product" %}
+    {% include 'components/empty_state.html' with title="No products found" message="Add your first product or adjust your filters." action_label="Add product" action_url="/inventory/products/add/" %}
   {% endif %}
 </div>
 

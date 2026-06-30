@@ -1,129 +1,131 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Edit Sale — Inventra{% endblock %}
-{% block topbar_title %}Edit Sale{% endblock %}
+{% block title %}Edit Sale{% endblock %}
+
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/sales.css' %}">
 {% endblock %}
 
+{% block breadcrumb %}
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a href="{% url 'dashboard:home' %}">Home</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'sales:sale_list' %}">Sales</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <a href="{% url 'sales:sale_detail' sale.id %}">{{ sale.sale_number }}</a>
+  <span class="sf-breadcrumb__sep" aria-hidden="true">/</span>
+  <span class="sf-breadcrumb__current">Edit</span>
+</nav>
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="breadcrumb">
-      <a href="{% url 'dashboard:home' %}">Dashboard</a>
-      <span class="separator">›</span>
-      <a href="{% url 'sales:sale_list' %}">Sales</a>
-      <span class="separator">›</span>
-      <a href="{% url 'sales:sale_detail' sale.id %}">{{ sale.sale_number }}</a>
-      <span class="separator">›</span>
-      <span>Edit</span>
-    </div>
-    <h1>Edit {{ sale.sale_number }}</h1>
-  </div>
-  <div class="page-header-right">
-    <a href="{% url 'sales:sale_detail' sale.id %}" class="btn btn-secondary">← Back</a>
-  </div>
-</div>
+<h1 class="sf-page-title sf-mb-4">Edit {{ sale.sale_number }}</h1>
 
-<form method="POST" id="saleForm">
+<form method="POST" id="sf-sale-form">
   {% csrf_token %}
-  <div class="sale-builder">
 
-    <!-- Left -->
-    <div class="sale-builder-main">
+  <script type="application/json" id="sf-products-json">
+    [
+      {% for product in products %}
+      {
+        "id": {{ product.id }},
+        "name": "{{ product.name|escapejs }}",
+        "sku": "{{ product.sku|escapejs }}",
+        "unit_price": {{ product.unit_price }},
+        "stock_quantity": {{ product.stock_quantity }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  </script>
 
-      <!-- Customer Info -->
-      <div class="form-card">
-        <div class="card-header">
-          <div><h2>Customer Information</h2></div>
+  <div class="sf-sale-builder">
+
+    <div style="display:flex; flex-direction:column; gap:var(--space-5);">
+
+      <div class="sf-card">
+        <div class="sf-card__header">
+          <h2 class="sf-card-title">Customer information</h2>
         </div>
-        <div class="form-grid-2">
-          <div class="form-group form-full">
-            <label>Customer Name <span class="required">*</span></label>
-            <input type="text" name="customer_name"
-                   value="{{ form.customer_name.value|default:'' }}"
-                   class="form-control">
-            {% if form.customer_name.errors %}
-              <span class="field-error">{{ form.customer_name.errors|join:", " }}</span>
-            {% endif %}
-          </div>
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="text" name="customer_phone"
-                   value="{{ form.customer_phone.value|default:'' }}"
-                   class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="customer_email"
-                   value="{{ form.customer_email.value|default:'' }}"
-                   class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select name="status" class="form-control">
-              <option value="draft"
-                {% if form.status.value == 'draft' %}selected{% endif %}>Draft</option>
-              <option value="confirmed"
-                {% if form.status.value == 'confirmed' %}selected{% endif %}>Confirmed</option>
-            </select>
-          </div>
-          <div class="form-group form-full">
-            <label>Notes</label>
-            <textarea name="notes" class="form-control"
-                      rows="2">{{ form.notes.value|default:'' }}</textarea>
+        <div class="sf-card__body">
+          <div class="sf-form-grid-2">
+            <div class="sf-field sf-form-full">
+              <label class="sf-label" for="id_customer_name">
+                Customer name <span class="sf-label__required">*</span>
+              </label>
+              <input class="sf-input {% if form.customer_name.errors %}has-error{% endif %}"
+                     type="text" id="id_customer_name" name="customer_name"
+                     value="{{ form.customer_name.value|default:'' }}">
+              {% if form.customer_name.errors %}
+                <p class="sf-error-text">{{ form.customer_name.errors|join:" " }}</p>
+              {% endif %}
+            </div>
+            <div class="sf-field">
+              <label class="sf-label" for="id_customer_phone">Phone</label>
+              <input class="sf-input sf-num" type="text" id="id_customer_phone" name="customer_phone"
+                     value="{{ form.customer_phone.value|default:'' }}">
+            </div>
+            <div class="sf-field">
+              <label class="sf-label" for="id_customer_email">Email</label>
+              <input class="sf-input" type="email" id="id_customer_email" name="customer_email"
+                     value="{{ form.customer_email.value|default:'' }}">
+            </div>
+            <div class="sf-field">
+              <label class="sf-label" for="id_status">Status</label>
+              <select class="sf-select" id="id_status" name="status">
+                <option value="draft" {% if form.status.value == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="confirmed" {% if form.status.value == 'confirmed' %}selected{% endif %}>Confirmed</option>
+              </select>
+            </div>
+            <div class="sf-field" style="margin-bottom:0;">
+              <label class="sf-label" for="id_notes">Notes</label>
+              <input class="sf-input" type="text" id="id_notes" name="notes"
+                     value="{{ form.notes.value|default:'' }}">
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Line Items -->
-      <div class="form-card">
-        <div class="product-picker-header">
-          <h3>Products</h3>
+      <div class="sf-card">
+        <div class="sf-card__header">
+          <h2 class="sf-card-title">Products</h2>
+          <button type="button" id="sf-add-line-item" class="sf-btn sf-btn--secondary sf-btn--sm">
+            + Add product
+          </button>
         </div>
-        <div class="product-row-labels">
-          <span>Product</span>
-          <span>Qty</span>
-          <span>Unit Price (KES)</span>
-          <span></span>
+        <div class="sf-card__body">
+          <table class="sf-line-items">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th style="width:90px;">Qty</th>
+                <th style="width:120px;">Unit price</th>
+                <th class="right" style="width:100px;">Subtotal</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="sf-line-items-body">
+              <!-- Existing rows injected below via JS bootstrap -->
+            </tbody>
+          </table>
         </div>
-        <div id="lineItemsContainer"></div>
-        <button type="button" class="add-row-btn" id="addRowBtn">
-          + Add Product
-        </button>
       </div>
 
     </div>
 
-    <!-- Right: Summary -->
-    <div class="sale-builder-sidebar">
-      <div class="order-summary">
-        <div class="order-summary-header">
-          <h3>Order Summary</h3>
-        </div>
-        <div class="order-summary-body">
-          <div class="summary-line">
-            <span class="line-label">Items</span>
-            <span class="line-value" id="summaryItemCount">0</span>
-          </div>
-          <div class="summary-line">
-            <span class="line-label">Subtotal</span>
-            <span class="line-value" id="summarySubtotal">KES 0.00</span>
-          </div>
-          <div class="summary-line total">
-            <span class="line-label">Total</span>
-            <span class="line-value" id="summaryTotal">KES 0.00</span>
-          </div>
-        </div>
-        <div class="order-summary-footer">
-          <button type="submit" class="btn btn-primary btn-lg">
-            Update Sale →
-          </button>
-          <a href="{% url 'sales:sale_detail' sale.id %}" class="btn btn-ghost">
-            Cancel
-          </a>
-        </div>
+    <div class="sf-order-summary" style="position:sticky; top:calc(var(--topbar-h) + var(--space-5));">
+      <h2 class="sf-card-title sf-mb-3">Order summary</h2>
+      <div class="sf-order-summary__row">
+        <span class="sf-order-summary__label">Items</span>
+        <span class="sf-order-summary__value" id="sf-order-items">0 items</span>
+      </div>
+      <div class="sf-order-summary__row sf-order-summary__row--total">
+        <span class="sf-order-summary__label">Total</span>
+        <span class="sf-order-summary__value" id="sf-order-total">KES 0.00</span>
+      </div>
+      <div style="margin-top:var(--space-4); display:flex; flex-direction:column; gap:var(--space-2);">
+        <button type="submit" class="sf-btn sf-btn--primary sf-btn--full">Update sale</button>
+        <a href="{% url 'sales:sale_detail' sale.id %}" class="sf-btn sf-btn--ghost sf-btn--full">Cancel</a>
       </div>
     </div>
 
@@ -134,108 +136,51 @@
 
 {% block extra_js %}
 <script>
-  const PRODUCTS = [
-    {% for product in products %}
-    {
-      id: {{ product.id }},
-      name: "{{ product.name|escapejs }}",
-      price: {{ product.unit_price }},
-      stock: {{ product.stock_quantity }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
+  /* Bootstrap existing line items for this sale */
+  document.addEventListener('DOMContentLoaded', function () {
+    var existing = [
+      {% for item in sale.items.all %}
+      { productId: {{ item.product.id }}, quantity: {{ item.quantity }}, price: {{ item.unit_price }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
 
-  // Existing items passed from Django
-  const EXISTING_ITEMS = [
-    {% for item in sale.items.all %}
-    {
-      productId: {{ item.product.id }},
-      quantity: {{ item.quantity }},
-      price: {{ item.unit_price }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
+    var container  = document.getElementById('sf-line-items-body');
+    var productsEl = document.getElementById('sf-products-json');
+    var products   = productsEl ? JSON.parse(productsEl.textContent) : [];
 
-  const container = document.getElementById('lineItemsContainer');
-  let rowCount = 0;
-
-  function buildProductOptions(selectedId) {
-    let opts = '<option value="">-- Select Product --</option>';
-    PRODUCTS.forEach(function(p) {
-      const sel = p.id == selectedId ? 'selected' : '';
-      opts += '<option value="' + p.id + '" data-price="' + p.price + '" ' + sel + '>'
-            + p.name + ' (Stock: ' + p.stock + ')'
-            + '</option>';
-    });
-    return opts;
-  }
-
-  function addRow(productId, qty, price) {
-    rowCount++;
-    const row = document.createElement('div');
-    row.className = 'product-select-row';
-
-    row.innerHTML =
-      '<select name="product_id" onchange="onProductChange(this)">'
-      + buildProductOptions(productId || '')
-      + '</select>'
-      + '<input type="number" name="quantity" value="' + (qty || 1) + '" min="1" '
-      + 'placeholder="Qty" oninput="recalculate()">'
-      + '<input type="number" name="unit_price" value="' + (price || '') + '" min="0" '
-      + 'step="0.01" placeholder="Unit Price" oninput="recalculate()">'
-      + '<button type="button" class="remove-row-btn" onclick="removeRow(this)">×</button>';
-
-    container.appendChild(row);
-    recalculate();
-  }
-
-  function onProductChange(select) {
-    const option = select.options[select.selectedIndex];
-    const price = option.getAttribute('data-price');
-    const row = select.closest('.product-select-row');
-    if (price) {
-      row.querySelector('input[name="unit_price"]').value = parseFloat(price).toFixed(2);
+    function buildOptions(selectedId) {
+      var opts = '<option value="">Select product…</option>';
+      products.forEach(function (p) {
+        var sel = p.id === selectedId ? 'selected' : '';
+        opts += '<option value="' + p.id + '" data-price="' + p.unit_price + '" ' + sel + '>' +
+          p.name + (p.sku ? ' (' + p.sku + ')' : '') + ' — ' + p.stock_quantity + ' in stock</option>';
+      });
+      return opts;
     }
-    recalculate();
-  }
 
-  function removeRow(btn) {
-    btn.closest('.product-select-row').remove();
-    recalculate();
-  }
+    if (existing.length === 0) {
+      document.getElementById('sf-add-line-item').click();
+      return;
+    }
 
-  function recalculate() {
-    const rows = container.querySelectorAll('.product-select-row');
-    let total = 0;
-    let itemCount = 0;
-
-    rows.forEach(function(row) {
-      const productSelect = row.querySelector('select[name="product_id"]');
-      const qty = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
-      const price = parseFloat(row.querySelector('input[name="unit_price"]').value) || 0;
-
-      if (productSelect.value && qty > 0) {
-        total += qty * price;
-        itemCount += qty;
-      }
+    existing.forEach(function (item) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><select name="product_id" class="sf-select" onchange="Inventra.onProductChange(this)" required>' +
+          buildOptions(item.productId) +
+        '</select></td>' +
+        '<td><input type="number" name="quantity" class="sf-input sf-num" value="' + item.quantity + '" min="1" step="1" oninput="Inventra.updateOrderSummary()" required></td>' +
+        '<td><input type="number" name="unit_price" class="sf-input sf-num" value="' + parseFloat(item.price).toFixed(2) + '" min="0" step="0.01" oninput="Inventra.updateOrderSummary()" required></td>' +
+        '<td class="sf-num">' + (item.quantity * item.price).toFixed(2) + '</td>' +
+        '<td><button type="button" class="sf-line-items__remove" data-remove-row aria-label="Remove row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></td>';
+      container.appendChild(tr);
+      tr.querySelector('[data-remove-row]').addEventListener('click', function () {
+        tr.remove();
+        Inventra.updateOrderSummary();
+      });
     });
 
-    document.getElementById('summaryItemCount').textContent = itemCount;
-    document.getElementById('summarySubtotal').textContent = 'KES ' + total.toFixed(2);
-    document.getElementById('summaryTotal').textContent = 'KES ' + total.toFixed(2);
-  }
-
-  document.getElementById('addRowBtn').addEventListener('click', function() {
-    addRow();
+    Inventra.updateOrderSummary();
   });
-
-  // Load existing items
-  if (EXISTING_ITEMS.length > 0) {
-    EXISTING_ITEMS.forEach(function(item) {
-      addRow(item.productId, item.quantity, item.price);
-    });
-  } else {
-    addRow();
-  }
 </script>
 {% endblock %}

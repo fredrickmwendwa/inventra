@@ -1,0 +1,234 @@
+/* ============================================================
+   INVENTRA — BASE / RESET / TYPOGRAPHY
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background var(--duration-base) var(--ease-out),
+    color     var(--duration-base) var(--ease-out);
+}
+
+img, svg { display: block; max-width: 100%; }
+
+a {
+  color: var(--color-brand-strong);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+button { font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+
+/* ── Always-visible keyboard focus ── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-sm);
+}
+
+/* ──────────────────────────────────────────
+   TYPE ROLES
+   These classes are used directly in HTML
+   and in templates — never deviate.
+────────────────────────────────────────── */
+
+/* Hero numbers on the dashboard — Fraunces, rare */
+.sf-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-display-l);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+/* H1 of every page */
+.sf-page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+/* Section headings / card titles rendered in Fraunces */
+.sf-section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-title);
+  line-height: var(--leading-snug);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+/* Card title — stays in Inter, slightly larger */
+.sf-card-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-subtitle);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+/* Eyebrow labels above KPI values, micro uppercase */
+.sf-eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.sf-body  { font-size: var(--text-body);  color: var(--color-ink-soft); }
+.sf-small { font-size: var(--text-small); color: var(--color-ink-faint); }
+
+/* ── Tabular numbers ──
+   ALL prices, quantities, SKUs, dates, percentages use sf-num
+   so columns align and digits don't shift width as they change */
+.sf-num {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Large stat value — KPI cards */
+.sf-num-lg {
+  font-family: var(--font-mono);
+  font-size: 1.875rem;
+  font-weight: 600;
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* ── The ledger rule ──
+   Signature horizontal divider with a small label centred on
+   the line. Echoes a physical ledger page break rather than
+   a generic <hr>. Used for section breaks inside forms and
+   inside the auth brand panel. */
+.sf-ledger-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-3);
+  color: var(--color-ink-faint);
+}
+
+.sf-ledger-rule::before,
+.sf-ledger-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.sf-ledger-rule__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Scrollbar — quiet, not default chrome ── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-faint); }
+
+/* ── Skip link ── */
+.sf-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-brand-strong);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  z-index: var(--z-toast);
+  border-radius: 0 0 var(--radius-sm) 0;
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+.sf-skip-link:focus { left: 0; }
+
+/* ── Page enter animation ── */
+@keyframes sf-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sf-page-enter {
+  animation: sf-page-in var(--duration-slow) var(--ease-out);
+}
+
+/* ── Utility classes used across all templates ── */
+.sf-flex           { display: flex; }
+.sf-flex-col       { display: flex; flex-direction: column; }
+.sf-items-center   { align-items: center; }
+.sf-justify-between{ justify-content: space-between; }
+.sf-flex-wrap      { flex-wrap: wrap; }
+.sf-gap-2          { gap: var(--space-2); }
+.sf-gap-3          { gap: var(--space-3); }
+.sf-gap-4          { gap: var(--space-4); }
+.sf-gap-5          { gap: var(--space-5); }
+.sf-mt-1           { margin-top: var(--space-1); }
+.sf-mt-2           { margin-top: var(--space-2); }
+.sf-mt-3           { margin-top: var(--space-3); }
+.sf-mt-4           { margin-top: var(--space-4); }
+.sf-mt-5           { margin-top: var(--space-5); }
+.sf-mt-6           { margin-top: var(--space-6); }
+.sf-mb-2           { margin-bottom: var(--space-2); }
+.sf-mb-3           { margin-bottom: var(--space-3); }
+.sf-mb-4           { margin-bottom: var(--space-4); }
+.sf-mb-5           { margin-bottom: var(--space-5); }
+.sf-mb-6           { margin-bottom: var(--space-6); }
+.sf-ml-auto        { margin-left: auto; }
+.sf-text-right     { text-align: right; }
+.sf-text-center    { text-align: center; }
+.sf-truncate       { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Grid helpers ── */
+.sf-grid   { display: grid; gap: var(--space-5); }
+.sf-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.sf-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.sf-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 900px) {
+  .sf-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .sf-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .sf-grid-4,
+  .sf-grid-3,
+  .sf-grid-2 { grid-template-columns: 1fr; }
+}
