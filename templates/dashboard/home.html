@@ -113,13 +113,15 @@
         </svg>
       </span>
     </div>
+    {% with oos_count=out_of_stock|length low_count=low_stock|length %}
     <div class="sf-kpi-card__value sf-num"
-         data-count-up>{{ out_of_stock|length|add:low_stock|length }}</div>
+         data-count-up>{{ oos_count|add:low_count }}</div>
     <div>
       <span class="sf-kpi-card__delta-context">
-        {{ out_of_stock|length }} out · {{ low_stock|length }} low
+        {{ oos_count }} out · {{ low_count }} low
       </span>
     </div>
+    {% endwith %}
   </div>
 
 </div>
@@ -416,33 +418,33 @@
       </div>
       <div class="sf-card__body">
         {% if top_products %}
-          {% for product in top_products %}
-            {% with max_qty=top_products.0.total_qty %}
-            <div class="sf-top-product">
-              <span class="sf-top-product__rank
-                {% if forloop.counter == 1 %}sf-top-product__rank--gold
-                {% elif forloop.counter == 2 %}sf-top-product__rank--silver
-                {% elif forloop.counter == 3 %}sf-top-product__rank--bronze
-                {% endif %}"
-                aria-hidden="true">
-                {{ forloop.counter }}
-              </span>
-              <div class="sf-top-product__body">
-                <div class="sf-top-product__name">
-                  {{ product.product__name }}
-                </div>
-                <div class="sf-top-product__bar-wrap">
-                  <div class="sf-top-product__bar-fill"
-                       style="width:{% widthratio product.total_qty max_qty 100 %}%;">
+          {% with max_qty=top_products.0.total_qty|default:1 %}
+            {% for product in top_products %}
+              <div class="sf-top-product">
+                <span class="sf-top-product__rank
+                  {% if forloop.counter == 1 %}sf-top-product__rank--gold
+                  {% elif forloop.counter == 2 %}sf-top-product__rank--silver
+                  {% elif forloop.counter == 3 %}sf-top-product__rank--bronze
+                  {% endif %}"
+                  aria-hidden="true">
+                  {{ forloop.counter }}
+                </span>
+                <div class="sf-top-product__body">
+                  <div class="sf-top-product__name">
+                    {{ product.product__name }}
+                  </div>
+                  <div class="sf-top-product__bar-wrap">
+                    <div class="sf-top-product__bar-fill"
+                         style="width:{% widthratio product.total_qty max_qty 100 %}%;">
+                    </div>
                   </div>
                 </div>
+                <span class="sf-top-product__qty sf-num">
+                  {{ product.total_qty }}
+                </span>
               </div>
-              <span class="sf-top-product__qty sf-num">
-                {{ product.total_qty }}
-              </span>
-            </div>
-            {% endwith %}
-          {% endfor %}
+            {% endfor %}
+          {% endwith %}
         {% else %}
           <p class="sf-small" style="padding:var(--space-4) 0; text-align:center;">
             No confirmed sales yet
@@ -503,9 +505,7 @@
                   </p>
                 </div>
                 <span class="sf-timeline-item__amount sf-num"
-                  style="{% if movement.movement_type == 'in' %}color:var(--color-brand-strong);
-                         {% elif movement.movement_type == 'out' %}color:var(--color-danger);
-                         {% else %}color:var(--color-accent-amber);{% endif %}">
+                  style="{% if movement.movement_type == 'in' %}color:var(--color-brand-strong);{% elif movement.movement_type == 'out' %}color:var(--color-danger);{% else %}color:var(--color-accent-amber);{% endif %}">
                   {% if movement.movement_type == 'in' %}+{% elif movement.movement_type == 'out' %}-{% endif %}{{ movement.quantity }}
                 </span>
               </div>
@@ -529,7 +529,7 @@
     <div>
       <h2 class="sf-card-title">Inventory snapshot</h2>
       <p class="sf-small" style="margin-top:2px;">
-        Current stock overview for {{ tenant.name }}
+        Current stock overview for {{ tenant.name|default:"your business" }}
       </p>
     </div>
     <a href="{% url 'inventory:product_list' %}"
@@ -571,9 +571,20 @@
 <script>
 (function () {
 
-  /* ── Chart data from Django view ── */
-  var labels = {{ chart_labels|safe }};
-  var values = {{ chart_values|safe }};
+  /* ── Chart data from Django view ──
+     The view JSON-encodes chart_labels/chart_values (json.dumps), so parse
+     them here rather than relying on {{ var|safe }} dropping a raw Python
+     repr into the script (which breaks on Decimal values, querysets, etc). */
+  var labels = [];
+  var values = [];
+  try {
+    labels = JSON.parse('{{ chart_labels|escapejs }}');
+    values = JSON.parse('{{ chart_values|escapejs }}');
+  } catch (e) {
+    console.error('Could not parse chart data from server:', e);
+  }
+  if (!Array.isArray(labels)) labels = [];
+  if (!Array.isArray(values)) values = [];
 
   /* ── Resolve colours from CSS tokens ── */
   var style    = getComputedStyle(document.documentElement);
@@ -583,17 +594,9 @@
   var faint    = style.getPropertyValue('--color-ink-faint').trim();
   var raised   = style.getPropertyValue('--color-bg-raised').trim();
   var ink      = style.getPropertyValue('--color-ink').trim();
-  var sunken   = style.getPropertyValue('--color-bg-sunken').trim();
 
-  /* ── Gradient fill under the line ── */
-  var ctx      = document.getElementById('revenueChart');
+  var ctx = document.getElementById('revenueChart');
   if (!ctx) return;
-  var chartCtx = ctx.getContext('2d');
-
-  var gradient = chartCtx.createLinearGradient(0, 0, 0, 220);
-  gradient.addColorStop(0,   'rgba(45,106,79,0.18)');
-  gradient.addColorStop(0.7, 'rgba(45,106,79,0.04)');
-  gradient.addColorStop(1,   'rgba(45,106,79,0)');
 
   /* ── Build chart ── */
   var chart = new Chart(ctx, {
@@ -668,11 +671,9 @@
         y: {
           grid: {
             color: border,
-            drawBorder: false,
           },
           border: {
             display: false,
-            dash: [3, 3],
           },
           ticks: {
             color: faint,

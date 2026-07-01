@@ -1,17 +1,14 @@
 /* ============================================================
    INVENTRA — CORE INTERACTIONS
    Vanilla JS only. No framework. Progressive enhancement.
-   Every interaction degrades gracefully if JS fails to load.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      THEME  (light / dark)
-     Stored in localStorage so the toggle is
-     instant — no flash on next page load.
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   var THEME_KEY   = 'inventra-theme';
   var SIDEBAR_KEY = 'inventra-sidebar-collapsed';
 
@@ -19,7 +16,6 @@
     document.documentElement.setAttribute('data-theme', theme);
     try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* blocked */ }
 
-    /* Flip the moon/sun icon if present */
     var icon = document.getElementById('themeIcon');
     if (icon) {
       icon.innerHTML = theme === 'dark'
@@ -43,19 +39,17 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      SIDEBAR COLLAPSE  (desktop)
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initSidebar() {
     var shell = document.querySelector('.sf-shell');
     if (!shell) return;
 
-    /* Restore saved state */
     var collapsed = false;
     try { collapsed = localStorage.getItem(SIDEBAR_KEY) === '1'; } catch (e) { /* noop */ }
     if (collapsed) shell.classList.add('is-collapsed');
 
-    /* Desktop collapse toggle */
     document.querySelectorAll('[data-sidebar-collapse]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var isCollapsed = shell.classList.toggle('is-collapsed');
@@ -63,14 +57,12 @@
       });
     });
 
-    /* Mobile open */
     document.querySelectorAll('[data-mobile-nav-toggle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         shell.classList.toggle('is-mobile-nav-open');
       });
     });
 
-    /* Mobile close — scrim click or explicit close button */
     document.querySelectorAll('[data-mobile-nav-close], .sf-scrim').forEach(function (el) {
       el.addEventListener('click', function () {
         shell.classList.remove('is-mobile-nav-open');
@@ -78,10 +70,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      ACTIVE NAV LINK
-     Matches current path prefix to href.
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initActiveNav() {
     var path = window.location.pathname;
     document.querySelectorAll('.sf-nav-link').forEach(function (link) {
@@ -93,19 +84,18 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      DROPDOWNS
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initDropdowns() {
     document.querySelectorAll('[data-dropdown-trigger]').forEach(function (trigger) {
       var targetId = trigger.getAttribute('data-dropdown-trigger');
-      var menu = document.getElementById(targetId);
+      var menu     = document.getElementById(targetId);
       if (!menu) return;
 
       trigger.addEventListener('click', function (e) {
         e.stopPropagation();
         var willOpen = !menu.classList.contains('is-open');
-        /* Close all open dropdowns first */
         document.querySelectorAll('.sf-dropdown.is-open').forEach(function (m) {
           m.classList.remove('is-open');
         });
@@ -113,14 +103,12 @@
       });
     });
 
-    /* Click outside closes all */
     document.addEventListener('click', function () {
       document.querySelectorAll('.sf-dropdown.is-open').forEach(function (m) {
         m.classList.remove('is-open');
       });
     });
 
-    /* Escape key closes all */
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         document.querySelectorAll('.sf-dropdown.is-open').forEach(function (m) {
@@ -130,11 +118,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      MODALS
-     Triggered via data-modal-open="<id>".
-     Focus is trapped and returned on close.
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   var lastFocusedTrigger = null;
 
   function openModal(modalId, trigger) {
@@ -182,18 +168,19 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      ALERTS / TOAST DISMISS
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function dismissAlert(alert) {
-    alert.style.transition = 'opacity ' + '160ms ease, transform 160ms ease';
-    alert.style.opacity = '0';
-    alert.style.transform = 'translateY(-4px)';
-    setTimeout(function () { if (alert.parentNode) alert.parentNode.removeChild(alert); }, 170);
+    alert.style.transition = 'opacity 160ms ease, transform 160ms ease';
+    alert.style.opacity    = '0';
+    alert.style.transform  = 'translateY(-4px)';
+    setTimeout(function () {
+      if (alert.parentNode) alert.parentNode.removeChild(alert);
+    }, 170);
   }
 
   function initAlerts() {
-    /* Manual dismiss */
     document.querySelectorAll('[data-alert-close]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var alert = btn.closest('.sf-alert');
@@ -201,27 +188,25 @@
       });
     });
 
-    /* Django messages → toasts (auto-dismissed after 6 s) */
     document.querySelectorAll('.sf-toast-stack .sf-alert:not([data-persist])').forEach(function (alert) {
       setTimeout(function () { dismissAlert(alert); }, 6000);
     });
   }
 
-  /* ──────────────────────────────────────────
-     SHOW TOAST  (programmatic API)
-  ────────────────────────────────────────── */
+  /* ────────────────────────────────────────────
+     TOAST  (programmatic)
+  ──────────────────────────────────────────── */
   function showToast(message, type) {
     type = type || 'info';
 
     var icons = {
       success: '<path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
-      warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      warning: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
       danger:  '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
       error:   '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
       info:    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8h.01M11 12h1v5h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
     };
 
-    /* Find or create the toast stack */
     var stack = document.querySelector('.sf-toast-stack');
     if (!stack) {
       stack = document.createElement('div');
@@ -237,7 +222,9 @@
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none">' +
       (icons[type] || icons.info) +
       '</svg></span>' +
-      '<div class="sf-alert__body"><p class="sf-alert__message">' + message + '</p></div>' +
+      '<div class="sf-alert__body"><p class="sf-alert__message">' +
+      message +
+      '</p></div>' +
       '<button type="button" class="sf-alert__close" data-alert-close aria-label="Dismiss">' +
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none">' +
       '<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
@@ -245,21 +232,17 @@
 
     stack.appendChild(toast);
 
-    /* Wire close button */
     var closeBtn = toast.querySelector('[data-alert-close]');
     if (closeBtn) {
       closeBtn.addEventListener('click', function () { dismissAlert(toast); });
     }
 
-    /* Auto-dismiss */
     setTimeout(function () { dismissAlert(toast); }, 6000);
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      DJANGO MESSAGES → TOASTS
-     Hidden spans injected by base.html are
-     picked up here and shown as toasts.
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initDjangoMessages() {
     document.querySelectorAll('.sf-dj-message').forEach(function (el) {
       var type = el.getAttribute('data-type') || 'info';
@@ -268,9 +251,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
-     CONFIRM (data-confirm attribute)
-  ────────────────────────────────────────── */
+  /* ────────────────────────────────────────────
+     CONFIRM  (data-confirm attribute)
+  ──────────────────────────────────────────── */
   function initConfirm() {
     document.querySelectorAll('[data-confirm]').forEach(function (el) {
       el.addEventListener('click', function (e) {
@@ -283,43 +266,40 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      CLICKABLE TABLE ROWS
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initClickableRows() {
     document.querySelectorAll('tr[data-href]').forEach(function (row) {
       row.addEventListener('click', function (e) {
-        /* Don't trigger if user clicks a button/link inside the row */
         if (e.target.closest('a, button, input, select, textarea')) return;
         window.location.href = row.getAttribute('data-href');
       });
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      COUNT-UP ANIMATION  (KPI values)
-     Runs once when the element scrolls into view.
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function countUp(el, end, duration) {
     var startTime = null;
-    var startVal  = 0;
 
     function step(timestamp) {
       if (!startTime) startTime = timestamp;
       var progress = Math.min((timestamp - startTime) / duration, 1);
-      /* Ease-out cubic */
-      var eased = 1 - Math.pow(1 - progress, 3);
-      var current = Math.round(startVal + (end - startVal) * eased);
-      el.textContent = current.toLocaleString();
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = end.toLocaleString();
+      var eased    = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(end * eased).toLocaleString();
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = end.toLocaleString();
+      }
     }
 
     requestAnimationFrame(step);
   }
 
   function initCountUp() {
-    /* Only run if IntersectionObserver is supported */
     if (!window.IntersectionObserver) return;
 
     var observer = new IntersectionObserver(function (entries) {
@@ -330,7 +310,6 @@
         if (!raw) return;
         var end = parseFloat(raw.replace(/,/g, ''));
         if (isNaN(end)) return;
-        el.setAttribute('data-counting', '1');
         countUp(el, end, 900);
         observer.unobserve(el);
       });
@@ -344,9 +323,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      IMAGE PREVIEW  (product / profile forms)
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initImagePreviews() {
     document.querySelectorAll('[data-image-input]').forEach(function (input) {
       var previewId = input.getAttribute('data-image-input');
@@ -366,9 +345,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      PASSWORD VISIBILITY TOGGLE
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initPasswordToggles() {
     document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -382,27 +361,27 @@
     });
   }
 
-  /* ──────────────────────────────────────────
-     PERIOD TOGGLE (chart 7D / 30D / 90D)
-     Just handles the active class — chart
-     update is wired in the dashboard template.
-  ────────────────────────────────────────── */
+  /* ────────────────────────────────────────────
+     PERIOD TOGGLE  (chart 7D / 30D / 90D)
+  ──────────────────────────────────────────── */
   function initPeriodToggles() {
     document.querySelectorAll('.sf-period-toggle').forEach(function (group) {
       group.querySelectorAll('.sf-period-toggle__btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
           group.querySelectorAll('.sf-period-toggle__btn').forEach(function (b) {
             b.classList.remove('is-active');
+            b.setAttribute('aria-pressed', 'false');
           });
           btn.classList.add('is-active');
+          btn.setAttribute('aria-pressed', 'true');
         });
       });
     });
   }
 
-  /* ──────────────────────────────────────────
-     SWATCH PICKER (category form)
-  ────────────────────────────────────────── */
+  /* ────────────────────────────────────────────
+     SWATCH PICKER  (category form)
+  ──────────────────────────────────────────── */
   function initSwatchPicker() {
     document.querySelectorAll('.sf-swatch-option input[type="radio"]').forEach(function (radio) {
       radio.addEventListener('change', function () {
@@ -416,112 +395,194 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      TAB PANELS
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   function initTabs() {
     document.querySelectorAll('[data-tab-trigger]').forEach(function (trigger) {
       trigger.addEventListener('click', function () {
-        var targetId = trigger.getAttribute('data-tab-trigger');
-        var tabGroup = trigger.closest('[data-tab-group]');
+        var targetId  = trigger.getAttribute('data-tab-trigger');
+        var tabGroup  = trigger.closest('[data-tab-group]');
 
-        /* Deactivate all tabs in this group */
         if (tabGroup) {
           tabGroup.querySelectorAll('[data-tab-trigger]').forEach(function (t) {
             t.classList.remove('is-active');
+            t.setAttribute('aria-selected', 'false');
           });
           tabGroup.querySelectorAll('.sf-tab-panel').forEach(function (p) {
             p.classList.remove('is-active');
           });
-        } else {
-          document.querySelectorAll('[data-tab-trigger]').forEach(function (t) {
-            t.classList.remove('is-active');
-          });
-          document.querySelectorAll('.sf-tab-panel').forEach(function (p) {
-            p.classList.remove('is-active');
-          });
         }
 
-        /* Activate the clicked tab and its panel */
         trigger.classList.add('is-active');
+        trigger.setAttribute('aria-selected', 'true');
+
         var panel = document.getElementById(targetId);
         if (panel) panel.classList.add('is-active');
       });
     });
   }
 
-  /* ──────────────────────────────────────────
-     SALE LINE ITEMS  (new / edit sale page)
-     Adds/removes product rows dynamically.
-  ────────────────────────────────────────── */
-  function initSaleLineItems() {
-    var container = document.getElementById('sf-line-items-body');
-    var addBtn    = document.getElementById('sf-add-line-item');
-    if (!container || !addBtn) return;
+  /* ────────────────────────────────────────────
+     SALE LINE ITEMS
+     Builds product rows dynamically in new/edit
+     sale pages. The key fix: when a product is
+     chosen, max="" is set to available stock so
+     the browser itself blocks over-typing, and
+     clampQuantity() enforces it programmatically.
+  ──────────────────────────────────────────── */
 
-    var rowIndex = container.querySelectorAll('tr').length;
-
-    addBtn.addEventListener('click', function () {
-      rowIndex++;
-      addLineItemRow(container, rowIndex);
-      updateOrderSummary();
+  /* Build the <option> list for one product select */
+  function buildProductOptions(products, selectedId) {
+    var opts = '<option value="">Select product…</option>';
+    products.forEach(function (p) {
+      var sel = (p.id === selectedId) ? 'selected' : '';
+      opts += '<option value="' + p.id + '" ' +
+              'data-price="' + p.unit_price + '" ' +
+              'data-stock="' + p.stock_quantity + '" ' + sel + '>' +
+              p.name +
+              (p.sku ? ' (' + p.sku + ')' : '') +
+              ' — ' + p.stock_quantity + ' in stock' +
+              '</option>';
     });
-
-    /* Wire existing rows (edit sale) */
-    container.querySelectorAll('[data-remove-row]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        btn.closest('tr').remove();
-        updateOrderSummary();
-      });
-    });
+    return opts;
   }
 
-  function addLineItemRow(container, index) {
-    /* Products are injected as JSON by the template */
-    var productsEl = document.getElementById('sf-products-json');
-    var products   = productsEl ? JSON.parse(productsEl.textContent) : [];
+  /* When a product is chosen from the dropdown:
+     1. Auto-fill the unit price from data-price
+     2. Set max on the qty input to available stock
+     3. Recalculate the order summary */
+  function onProductChange(select) {
+    var option = select.options[select.selectedIndex];
+    var price  = parseFloat(option.getAttribute('data-price'))  || 0;
+    var stock  = parseInt(option.getAttribute('data-stock'), 10) || 0;
+    var row    = select.closest('tr');
+    if (!row) return;
 
-    var options = '<option value="">Select product…</option>';
-    products.forEach(function (p) {
-      options += '<option value="' + p.id + '" data-price="' + p.unit_price + '">' +
-        p.name + (p.sku ? ' (' + p.sku + ')' : '') + ' — ' + p.stock_quantity + ' in stock</option>';
-    });
+    var priceInput = row.querySelector('input[name="unit_price"]');
+    var qtyInput   = row.querySelector('input[name="quantity"]');
 
+    if (priceInput) priceInput.value = price.toFixed(2);
+
+    if (qtyInput) {
+      if (stock > 0) {
+        /* Cap max at available stock */
+        qtyInput.max   = stock;
+        /* If current value already exceeds stock, bring it down */
+        var currentQty = parseInt(qtyInput.value, 10) || 1;
+        if (currentQty > stock) {
+          qtyInput.value = stock;
+          showToast(
+            'Quantity adjusted — only ' + stock + ' in stock for "' +
+            (option.text || 'this product') + '".',
+            'warning'
+          );
+        }
+      } else {
+        /* Stock is 0 — this shouldn't normally appear in the dropdown
+           (the view filters them out) but handle defensively */
+        qtyInput.max   = 0;
+        qtyInput.value = 0;
+        showToast(
+          '"' + (option.text || 'This product') + '" is out of stock.',
+          'danger'
+        );
+      }
+    }
+
+    updateOrderSummary();
+  }
+
+  /* Called on every keystroke in a qty input.
+     Clamps the value down to the product's stock
+     and shows a toast if it was clamped. */
+  function clampQuantity(input) {
+    var row    = input.closest('tr');
+    if (!row) return;
+    var select = row.querySelector('select[name="product_id"]');
+    if (!select) return;
+    var option = select.options[select.selectedIndex];
+    if (!option || !option.value) return;
+
+    var stock  = parseInt(option.getAttribute('data-stock'), 10) || 0;
+    var wanted = parseInt(input.value, 10) || 0;
+
+    if (wanted < 1) {
+      input.value = 1;
+      updateOrderSummary();
+      return;
+    }
+
+    if (stock > 0 && wanted > stock) {
+      input.value = stock;
+      showToast(
+        'Only ' + stock + ' in stock — quantity capped at ' + stock + '.',
+        'warning'
+      );
+    }
+
+    updateOrderSummary();
+  }
+
+  /* Remove a line item row */
+  function removeRow(btn) {
+    var row = btn.closest('tr');
+    if (row) row.remove();
+    updateOrderSummary();
+  }
+
+  /* Append a new blank line item row */
+  function addLineItemRow(container, products, productId, qty, price) {
     var tr = document.createElement('tr');
+
+    var qtyValue   = qty   || 1;
+    var priceValue = price ? parseFloat(price).toFixed(2) : '';
+
     tr.innerHTML =
       '<td>' +
-        '<select name="product_id" class="sf-select" onchange="Inventra.onProductChange(this)" required>' +
-          options +
+        '<select name="product_id" class="sf-select" ' +
+                'onchange="Inventra.onProductChange(this)" required>' +
+          buildProductOptions(products, productId || null) +
         '</select>' +
       '</td>' +
-      '<td><input type="number" name="quantity" class="sf-input sf-num" value="1" min="1" step="1" oninput="Inventra.updateOrderSummary()" required></td>' +
-      '<td><input type="number" name="unit_price" class="sf-input sf-num" value="" min="0" step="0.01" placeholder="0.00" oninput="Inventra.updateOrderSummary()" required></td>' +
-      '<td class="sf-num" id="sf-row-subtotal-' + index + '">0.00</td>' +
       '<td>' +
-        '<button type="button" class="sf-line-items__remove" data-remove-row aria-label="Remove row">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' +
+        '<input type="number" name="quantity" class="sf-input sf-num" ' +
+               'value="' + qtyValue + '" min="1" step="1" ' +
+               'oninput="Inventra.clampQuantity(this)" required>' +
+      '</td>' +
+      '<td>' +
+        '<input type="number" name="unit_price" class="sf-input sf-num" ' +
+               'value="' + priceValue + '" min="0" step="0.01" ' +
+               'placeholder="0.00" oninput="Inventra.updateOrderSummary()" required>' +
+      '</td>' +
+      '<td class="sf-num" style="text-align:right; color:var(--color-ink);">0.00</td>' +
+      '<td style="text-align:right;">' +
+        '<button type="button" class="sf-line-items__remove" ' +
+                'onclick="Inventra.removeRow(this)" aria-label="Remove row">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none">' +
+            '<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" ' +
+                  'stroke-width="1.8" stroke-linecap="round"/>' +
+          '</svg>' +
         '</button>' +
       '</td>';
 
     container.appendChild(tr);
 
-    tr.querySelector('[data-remove-row]').addEventListener('click', function () {
-      tr.remove();
-      updateOrderSummary();
-    });
-  }
+    /* If we were given a pre-selected product, set max on qty right away */
+    if (productId && qty) {
+      var select = tr.querySelector('select[name="product_id"]');
+      var qtyEl  = tr.querySelector('input[name="quantity"]');
+      if (select && qtyEl) {
+        var opt   = select.querySelector('option[value="' + productId + '"]');
+        var stock = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+        if (stock > 0) qtyEl.max = stock;
+      }
+    }
 
-  function onProductChange(select) {
-    var option = select.options[select.selectedIndex];
-    var price  = option.getAttribute('data-price');
-    if (!price) return;
-    var row    = select.closest('tr');
-    if (!row) return;
-    var priceInput = row.querySelector('input[name="unit_price"]');
-    if (priceInput) priceInput.value = parseFloat(price).toFixed(2);
     updateOrderSummary();
   }
 
+  /* Recalculate the order summary sidebar */
   function updateOrderSummary() {
     var container = document.getElementById('sf-line-items-body');
     if (!container) return;
@@ -530,24 +591,79 @@
     var itemCount = 0;
 
     container.querySelectorAll('tr').forEach(function (row) {
-      var qtyInput   = row.querySelector('input[name="quantity"]');
-      var priceInput = row.querySelector('input[name="unit_price"]');
-      var qty   = qtyInput   ? parseFloat(qtyInput.value)   || 0 : 0;
-      var price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
+      var qtyEl   = row.querySelector('input[name="quantity"]');
+      var priceEl = row.querySelector('input[name="unit_price"]');
+      var subEl   = row.cells && row.cells[3];
+
+      var qty   = qtyEl   ? parseFloat(qtyEl.value)   || 0 : 0;
+      var price = priceEl ? parseFloat(priceEl.value)  || 0 : 0;
       var sub   = qty * price;
+
+      if (subEl) subEl.textContent = sub.toFixed(2);
+
       total     += sub;
       itemCount += qty;
     });
 
     var totalEl = document.getElementById('sf-order-total');
     var itemsEl = document.getElementById('sf-order-items');
-    if (totalEl) totalEl.textContent = 'KES ' + total.toLocaleString('en-KE', { minimumFractionDigits: 2 });
+    if (totalEl) totalEl.textContent = 'KES ' + total.toLocaleString('en-KE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
     if (itemsEl) itemsEl.textContent = itemCount + ' item' + (itemCount !== 1 ? 's' : '');
   }
 
-  /* ──────────────────────────────────────────
-     SEARCH  (Ctrl/Cmd + K focuses topbar search)
-  ────────────────────────────────────────── */
+  /* Wire up the Add Product button and bootstrap
+     any pre-existing rows (edit sale page) */
+  function initSaleLineItems() {
+    var container = document.getElementById('sf-line-items-body');
+    var addBtn    = document.getElementById('sf-add-line-item');
+    if (!container) return;
+
+    /* Products are injected as a JSON script tag by the template */
+    var productsEl = document.getElementById('sf-products-json');
+    var products   = [];
+    if (productsEl) {
+      try {
+        products = JSON.parse(productsEl.textContent);
+      } catch (e) {
+        console.error('Inventra: could not parse sf-products-json', e);
+      }
+    }
+
+    /* Add blank row when + button is clicked */
+    if (addBtn) {
+      addBtn.addEventListener('click', function () {
+        addLineItemRow(container, products);
+      });
+    }
+
+    /* Bootstrap existing rows on edit sale page.
+       The template injects sf-existing-items-json. */
+    var existingEl = document.getElementById('sf-existing-items-json');
+    if (existingEl) {
+      var existing = [];
+      try { existing = JSON.parse(existingEl.textContent); } catch (e) { /* empty */ }
+
+      if (existing.length > 0) {
+        existing.forEach(function (item) {
+          addLineItemRow(container, products, item.productId, item.quantity, item.price);
+        });
+      } else if (addBtn) {
+        addBtn.click(); /* Start with one empty row */
+      }
+    } else if (addBtn) {
+      /* New sale page — start with one empty row */
+      addBtn.click();
+    }
+
+    updateOrderSummary();
+  }
+
+  /* ────────────────────────────────────────────
+     SEARCH SHORTCUT  (⌘K / Ctrl+K)
+  ──────────────────────────────────────────── */
   function initSearchShortcut() {
     document.addEventListener('keydown', function (e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -558,9 +674,9 @@
     });
   }
 
-  /* ──────────────────────────────────────────
+  /* ────────────────────────────────────────────
      INIT
-  ────────────────────────────────────────── */
+  ──────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
     initSidebar();
@@ -581,15 +697,17 @@
     initSearchShortcut();
   });
 
-  /* ── Public API ── */
+  /* ── Public API exposed to inline onclick handlers ── */
   window.Inventra = {
-    showToast:        showToast,
-    openModal:        openModal,
+    showToast:          showToast,
+    openModal:          openModal,
     closeModal: function (id) {
       var overlay = document.getElementById(id);
       if (overlay) closeModal(overlay);
     },
-    onProductChange:  onProductChange,
+    onProductChange:    onProductChange,
+    clampQuantity:      clampQuantity,
+    removeRow:          removeRow,
     updateOrderSummary: updateOrderSummary,
   };
 

@@ -135,52 +135,15 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  /* Bootstrap existing line items for this sale */
-  document.addEventListener('DOMContentLoaded', function () {
-    var existing = [
-      {% for item in sale.items.all %}
-      { productId: {{ item.product.id }}, quantity: {{ item.quantity }}, price: {{ item.unit_price }} }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ];
-
-    var container  = document.getElementById('sf-line-items-body');
-    var productsEl = document.getElementById('sf-products-json');
-    var products   = productsEl ? JSON.parse(productsEl.textContent) : [];
-
-    function buildOptions(selectedId) {
-      var opts = '<option value="">Select product…</option>';
-      products.forEach(function (p) {
-        var sel = p.id === selectedId ? 'selected' : '';
-        opts += '<option value="' + p.id + '" data-price="' + p.unit_price + '" ' + sel + '>' +
-          p.name + (p.sku ? ' (' + p.sku + ')' : '') + ' — ' + p.stock_quantity + ' in stock</option>';
-      });
-      return opts;
-    }
-
-    if (existing.length === 0) {
-      document.getElementById('sf-add-line-item').click();
-      return;
-    }
-
-    existing.forEach(function (item) {
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td><select name="product_id" class="sf-select" onchange="Inventra.onProductChange(this)" required>' +
-          buildOptions(item.productId) +
-        '</select></td>' +
-        '<td><input type="number" name="quantity" class="sf-input sf-num" value="' + item.quantity + '" min="1" step="1" oninput="Inventra.updateOrderSummary()" required></td>' +
-        '<td><input type="number" name="unit_price" class="sf-input sf-num" value="' + parseFloat(item.price).toFixed(2) + '" min="0" step="0.01" oninput="Inventra.updateOrderSummary()" required></td>' +
-        '<td class="sf-num">' + (item.quantity * item.price).toFixed(2) + '</td>' +
-        '<td><button type="button" class="sf-line-items__remove" data-remove-row aria-label="Remove row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></td>';
-      container.appendChild(tr);
-      tr.querySelector('[data-remove-row]').addEventListener('click', function () {
-        tr.remove();
-        Inventra.updateOrderSummary();
-      });
-    });
-
-    Inventra.updateOrderSummary();
-  });
+<script type="application/json" id="sf-existing-items-json">
+  [
+    {% for item in sale.items.all %}
+    {
+      "productId": {{ item.product.id }},
+      "quantity":  {{ item.quantity }},
+      "price":     {{ item.unit_price }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
 </script>
 {% endblock %}

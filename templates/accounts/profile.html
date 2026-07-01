@@ -53,158 +53,162 @@
 </div>
 
 <!-- Tabs -->
-<div class="sf-tabs" data-tab-group role="tablist">
-  <button type="button"
-          class="sf-tab is-active"
-          data-tab-trigger="tab-personal"
-          role="tab"
-          aria-selected="true">
-    Personal info
-  </button>
-  <button type="button"
-          class="sf-tab"
-          data-tab-trigger="tab-password"
-          role="tab"
-          aria-selected="false">
-    Change password
-  </button>
-</div>
+<div data-tab-group>
 
-<!-- Tab: Personal info -->
-<div id="tab-personal" class="sf-tab-panel is-active" role="tabpanel">
-  <div class="sf-card" style="max-width:640px;">
-    <div class="sf-card__header">
-      <h2 class="sf-card-title">Personal information</h2>
-    </div>
-    <div class="sf-card__body">
-      <form method="POST" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-        <input type="hidden" name="update_profile" value="1">
-
-        <div class="sf-form-grid-2">
-          <div class="sf-field">
-            <label class="sf-label" for="id_first_name">First name</label>
-            <input class="sf-input" type="text" id="id_first_name"
-                   name="first_name"
-                   value="{{ profile_form.first_name.value|default:'' }}">
-            {% if profile_form.first_name.errors %}
-              <p class="sf-error-text">{{ profile_form.first_name.errors|join:" " }}</p>
-            {% endif %}
-          </div>
-
-          <div class="sf-field">
-            <label class="sf-label" for="id_last_name">Last name</label>
-            <input class="sf-input" type="text" id="id_last_name"
-                   name="last_name"
-                   value="{{ profile_form.last_name.value|default:'' }}">
-          </div>
-
-          <div class="sf-field">
-            <label class="sf-label" for="id_email">Email address</label>
-            <input class="sf-input" type="email" id="id_email"
-                   name="email"
-                   value="{{ profile_form.email.value|default:'' }}">
-          </div>
-
-          <div class="sf-field">
-            <label class="sf-label" for="id_phone">Phone number</label>
-            <input class="sf-input sf-num" type="text" id="id_phone"
-                   name="phone"
-                   value="{{ profile_form.phone.value|default:'' }}"
-                   placeholder="+254 700 000 000">
-          </div>
-
-          <div class="sf-field sf-form-full">
-            <label class="sf-label" for="id_avatar">
-              Profile photo <span class="sf-label__optional">(optional)</span>
-            </label>
-            <input class="sf-input" type="file" id="id_avatar"
-                   name="avatar" accept="image/*"
-                   data-image-input="avatar-preview">
-            <p class="sf-help-text">JPG or PNG. Max 2MB.</p>
-            <img id="avatar-preview" class="sf-image-preview" alt="New avatar preview">
-          </div>
-        </div>
-
-        <div style="display:flex; gap:var(--space-3); padding-top:var(--space-2);">
-          <button type="submit" class="sf-btn sf-btn--primary">Save changes</button>
-        </div>
-      </form>
-    </div>
+  <div class="sf-tabs" role="tablist">
+    <button type="button"
+            class="sf-tab is-active"
+            data-tab-trigger="tab-personal"
+            role="tab"
+            aria-selected="true">
+      Personal info
+    </button>
+    <button type="button"
+            class="sf-tab"
+            data-tab-trigger="tab-password"
+            role="tab"
+            aria-selected="false">
+      Change password
+    </button>
   </div>
-</div>
 
-<!-- Tab: Change password -->
-<div id="tab-password" class="sf-tab-panel" role="tabpanel">
-  <div class="sf-card" style="max-width:440px;">
-    <div class="sf-card__header">
-      <h2 class="sf-card-title">Change password</h2>
-    </div>
-    <div class="sf-card__body">
-      <form method="POST" novalidate>
-        {% csrf_token %}
-        <input type="hidden" name="change_password" value="1">
+  <!-- Tab: Personal info -->
+  <div id="tab-personal" class="sf-tab-panel is-active" role="tabpanel">
+    <div class="sf-card" style="max-width:640px;">
+      <div class="sf-card__header">
+        <h2 class="sf-card-title">Personal information</h2>
+      </div>
+      <div class="sf-card__body">
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="update_profile" value="1">
 
-        <div class="sf-field">
-          <label class="sf-label" for="id_current_password">Current password</label>
-          <div style="position:relative;">
-            <input class="sf-input" type="password" id="id_current_password"
-                   name="current_password" placeholder="••••••••"
-                   style="padding-right:var(--space-8);">
-            <button type="button" class="sf-input-toggle-visibility"
-                    data-toggle-password="id_current_password" aria-label="Show password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+          <div class="sf-form-grid-2">
+            <div class="sf-field">
+              <label class="sf-label" for="id_first_name">First name</label>
+              <input class="sf-input" type="text" id="id_first_name"
+                     name="first_name"
+                     value="{{ profile_form.first_name.value|default:'' }}">
+              {% if profile_form.first_name.errors %}
+                <p class="sf-error-text">{{ profile_form.first_name.errors|join:" " }}</p>
+              {% endif %}
+            </div>
 
-        <div class="sf-field">
-          <label class="sf-label" for="id_new_password">New password</label>
-          <div style="position:relative;">
-            <input class="sf-input" type="password" id="id_new_password"
-                   name="new_password" placeholder="Min. 8 characters"
-                   style="padding-right:var(--space-8);">
-            <button type="button" class="sf-input-toggle-visibility"
-                    data-toggle-password="id_new_password" aria-label="Show password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+            <div class="sf-field">
+              <label class="sf-label" for="id_last_name">Last name</label>
+              <input class="sf-input" type="text" id="id_last_name"
+                     name="last_name"
+                     value="{{ profile_form.last_name.value|default:'' }}">
+            </div>
 
-        <div class="sf-field">
-          <label class="sf-label" for="id_confirm_password">Confirm new password</label>
-          <div style="position:relative;">
-            <input class="sf-input" type="password" id="id_confirm_password"
-                   name="confirm_password" placeholder="Re-enter new password"
-                   style="padding-right:var(--space-8);">
-            <button type="button" class="sf-input-toggle-visibility"
-                    data-toggle-password="id_confirm_password" aria-label="Show password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+            <div class="sf-field">
+              <label class="sf-label" for="id_email">Email address</label>
+              <input class="sf-input" type="email" id="id_email"
+                     name="email"
+                     value="{{ profile_form.email.value|default:'' }}">
+            </div>
 
-        {% if password_form.non_field_errors %}
-          <div class="sf-alert sf-alert--danger" role="alert">
-            <div class="sf-alert__body">
-              <p class="sf-alert__message">{{ password_form.non_field_errors|join:" " }}</p>
+            <div class="sf-field">
+              <label class="sf-label" for="id_phone">Phone number</label>
+              <input class="sf-input sf-num" type="text" id="id_phone"
+                     name="phone"
+                     value="{{ profile_form.phone.value|default:'' }}"
+                     placeholder="+254 700 000 000">
+            </div>
+
+            <div class="sf-field sf-form-full">
+              <label class="sf-label" for="id_avatar">
+                Profile photo <span class="sf-label__optional">(optional)</span>
+              </label>
+              <input class="sf-input" type="file" id="id_avatar"
+                     name="avatar" accept="image/*"
+                     data-image-input="avatar-preview">
+              <p class="sf-help-text">JPG or PNG. Max 2MB.</p>
+              <img id="avatar-preview" class="sf-image-preview" alt="New avatar preview">
             </div>
           </div>
-        {% endif %}
 
-        <button type="submit" class="sf-btn sf-btn--primary">Update password</button>
-      </form>
+          <div style="display:flex; gap:var(--space-3); padding-top:var(--space-2);">
+            <button type="submit" class="sf-btn sf-btn--primary">Save changes</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Tab: Change password -->
+  <div id="tab-password" class="sf-tab-panel" role="tabpanel">
+    <div class="sf-card" style="max-width:440px;">
+      <div class="sf-card__header">
+        <h2 class="sf-card-title">Change password</h2>
+      </div>
+      <div class="sf-card__body">
+        <form method="POST" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="change_password" value="1">
+
+          <div class="sf-field">
+            <label class="sf-label" for="id_current_password">Current password</label>
+            <div style="position:relative;">
+              <input class="sf-input" type="password" id="id_current_password"
+                     name="current_password" placeholder="••••••••"
+                     style="padding-right:var(--space-8);">
+              <button type="button" class="sf-input-toggle-visibility"
+                      data-toggle-password="id_current_password" aria-label="Show password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="sf-field">
+            <label class="sf-label" for="id_new_password">New password</label>
+            <div style="position:relative;">
+              <input class="sf-input" type="password" id="id_new_password"
+                     name="new_password" placeholder="Min. 8 characters"
+                     style="padding-right:var(--space-8);">
+              <button type="button" class="sf-input-toggle-visibility"
+                      data-toggle-password="id_new_password" aria-label="Show password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="sf-field">
+            <label class="sf-label" for="id_confirm_password">Confirm new password</label>
+            <div style="position:relative;">
+              <input class="sf-input" type="password" id="id_confirm_password"
+                     name="confirm_password" placeholder="Re-enter new password"
+                     style="padding-right:var(--space-8);">
+              <button type="button" class="sf-input-toggle-visibility"
+                      data-toggle-password="id_confirm_password" aria-label="Show password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {% if password_form.non_field_errors %}
+            <div class="sf-alert sf-alert--danger" role="alert">
+              <div class="sf-alert__body">
+                <p class="sf-alert__message">{{ password_form.non_field_errors|join:" " }}</p>
+              </div>
+            </div>
+          {% endif %}
+
+          <button type="submit" class="sf-btn sf-btn--primary">Update password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /data-tab-group -->
 
 {% endblock %}

@@ -6,6 +6,10 @@ from .forms import BusinessRegistrationForm, OwnerRegistrationForm, LoginForm
 from apps.accounts.models import UserProfile
 
 
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard:home')
+    return render(request, 'tenants/landing.html')
 
 def register_view(request):
     if request.user.is_authenticated:

@@ -1,11 +1,12 @@
-    <!-- ══ SIDEBAR ══ -->
+   {% load static %}
+   <!-- ══ SIDEBAR ══ -->
     <aside class="sf-sidebar" id="sfSidebar" aria-label="Primary navigation">
 
       <!-- Letterhead — business name like a ledger spine -->
       <div class="sf-sidebar__letterhead">
         <div class="sf-sidebar__mark" aria-hidden="true">
-          {{ tenant.name|first|upper|default:"I" }}
-        </div>
+  <img src="{% static 'images/logo.svg' %}" alt="" width="30" height="30" style="display:block;">
+</div>
         <div class="sf-sidebar__business">
           <div class="sf-sidebar__business-name">
             {{ tenant.name|default:"Inventra" }}

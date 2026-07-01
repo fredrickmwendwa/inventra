@@ -45,7 +45,6 @@
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
   min-height: var(--topbar-h);
   flex-shrink: 0;
   overflow: hidden;
@@ -53,19 +52,9 @@
 
 /* The brand mark — single letter in a coloured square */
 .sf-sidebar__mark {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   transition: transform var(--duration-base) var(--ease-out);
   flex-shrink: 0;
 }
@@ -210,9 +199,7 @@
 }
 
 .sf-shell.is-collapsed .sf-nav-link__label {
-  opacity: 0;
-  width: 0;
-  flex: 0;
+  display: none;
 }
 
 /* Low stock badge on Products link */
@@ -230,10 +217,7 @@
 }
 
 .sf-shell.is-collapsed .sf-nav-link__badge {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-  padding: 0;
+  display: none;
 }
 
 /* Tooltip shown in collapsed mode */
@@ -308,9 +292,7 @@
 }
 
 .sf-shell.is-collapsed .sf-sidebar__user-info {
-  opacity: 0;
-  width: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .sf-sidebar__user-name {

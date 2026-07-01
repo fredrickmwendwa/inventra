@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Inventra is a multi-tenant inventory and sales management platform — real-time stock, sales tracking, and team access for growing businesses.">
+  <title>Inventra · Inventory &amp; Sales Management</title>
+  {% load static %}
+
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('inventra-theme');
+        var d = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body>
+
+  <!-- ══ NAV ══ -->
+  <nav class="lp-nav">
+    <a href="#" class="lp-nav__brand">
+      <span class="lp-nav__mark" aria-hidden="true">
+        <img src="{% static 'images/logo.svg' %}" alt="" width="30" height="30">
+      </span>
+      Inventra
+    </a>
+
+    <div class="lp-nav__actions">
+      <button type="button"
+              class="sf-icon-btn"
+              data-theme-toggle
+              aria-label="Toggle dark mode"
+              title="Toggle dark mode">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
+                stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <a href="{% url 'tenants:login' %}" class="sf-btn sf-btn--secondary sf-btn--sm">
+        Sign in
+      </a>
+      <a href="{% url 'tenants:register' %}" class="sf-btn sf-btn--primary sf-btn--sm">
+        Get started
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="lp-hero">
+    <div class="lp-hero__inner">
+
+      <span class="lp-eyebrow">
+        <span class="lp-eyebrow__dot" aria-hidden="true"></span>
+        Multi-tenant inventory platform
+      </span>
+
+      <h1 class="lp-hero__title">
+        Every count, every sale,<br>
+        <mark>kept in one ledger.</mark>
+      </h1>
+
+      <p class="lp-hero__sub">
+        Inventra gives your business complete control over stock,
+        sales, and suppliers - in a clean workspace your whole
+        team can use from day one.
+      </p>
+
+      <div class="lp-hero__actions">
+        <a href="{% url 'tenants:register' %}" class="sf-btn sf-btn--primary sf-btn--lg">
+          Set up your business
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M12 5l7 7-7 7"
+                  stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href="{% url 'tenants:login' %}" class="sf-btn sf-btn--secondary sf-btn--lg">
+          Sign in
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+
+  <!-- ══ FEATURES ══ -->
+  <section class="lp-section" id="features">
+    <div class="lp-section__head">
+      <div class="lp-section__eyebrow">Everything in one place</div>
+      <h2 class="lp-section__title">Built for how stock actually moves</h2>
+      <p class="lp-section__sub">
+        No bloated ERP. No spreadsheets. Just the tools your team
+        needs to run inventory and sales day to day.
+      </p>
+    </div>
+
+    <div class="lp-features">
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7"
+                  stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Real-time inventory</h3>
+        <p>Track stock levels across every product, set reorder
+          points, and get alerted the moment something runs low.</p>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="9" cy="21" r="1.4" fill="currentColor"/>
+            <circle cx="19" cy="21" r="1.4" fill="currentColor"/>
+            <path d="M1 1h3l2.6 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L22 6H6"
+                  stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Sales that sync stock</h3>
+        <p>Record a sale and watch inventory adjust automatically.
+          No manual reconciliation, no double entry.</p>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"
+                  stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Supplier records</h3>
+        <p>Keep contact details, notes, and order history for every
+          vendor your business works with, all searchable.</p>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"
+                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Role-based team access</h3>
+        <p>Invite staff as owner, manager, or staff. Each role sees
+          exactly what they need — nothing more.</p>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M3.27 6.96L12 12l8.73-5.04M12 22.08V12"
+                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Full movement history</h3>
+        <p>Every stock in, out, and adjustment is logged with who
+          made it and when — a complete audit trail.</p>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </div>
+        <h3 class="lp-feature__title">Isolated multi-tenant data</h3>
+        <p>Every business gets its own private workspace. Your data
+          never touches another tenant's, ever.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <section class="lp-section" id="how-it-works">
+    <div class="lp-section__head">
+      <div class="lp-section__eyebrow">How it works</div>
+      <h2 class="lp-section__title">From sign-up to selling, in minutes</h2>
+    </div>
+
+    <div class="lp-workflow">
+
+      <div class="lp-workflow__row">
+        <div class="lp-workflow__num">01</div>
+        <div>
+          <h3 class="lp-workflow__title">Set up your business</h3>
+          <p class="lp-workflow__desc">
+            Register your business and owner account. No paperwork,
+            no waiting — your workspace is ready instantly.
+          </p>
+        </div>
+        <div class="lp-workflow__visual">
+          business.name → "Acme Supplies Ltd."<br>
+          owner.role → "owner"<br>
+          workspace → ready ✓
+        </div>
+      </div>
+
+      <div class="lp-workflow__row">
+        <div class="lp-workflow__num">02</div>
+        <div>
+          <h3 class="lp-workflow__title">Add your products</h3>
+          <p class="lp-workflow__desc">
+            Import or manually add your catalog with categories,
+            pricing, and opening stock. Set reorder thresholds once.
+          </p>
+        </div>
+        <div class="lp-workflow__visual">
+          product.stock_quantity → 48<br>
+          product.reorder_level → 10<br>
+          status → "active"
+        </div>
+      </div>
+
+      <div class="lp-workflow__row">
+        <div class="lp-workflow__num">03</div>
+        <div>
+          <h3 class="lp-workflow__title">Invite your team</h3>
+          <p class="lp-workflow__desc">
+            Add staff with the right role. Managers can adjust stock
+            and confirm sales; staff can record sales at the counter.
+          </p>
+        </div>
+        <div class="lp-workflow__visual">
+          staff.role → "manager"<br>
+          permissions → scoped<br>
+          tenant → isolated ✓
+        </div>
+      </div>
+
+      <div class="lp-workflow__row">
+        <div class="lp-workflow__num">04</div>
+        <div>
+          <h3 class="lp-workflow__title">Sell, track, repeat</h3>
+          <p class="lp-workflow__desc">
+            Every confirmed sale deducts stock automatically. Your
+            dashboard updates in real time — no manual reconciling.
+          </p>
+        </div>
+        <div class="lp-workflow__visual">
+          sale.status → "confirmed"<br>
+          stock_movement → "out"<br>
+          revenue → +KES 4,200
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ STATS BAND ══ -->
+  <div class="lp-stats">
+    <div class="lp-stats__inner">
+      <div>
+        <div class="lp-stat__value">&lt; 2min</div>
+        <div class="lp-stat__label">Average setup time</div>
+      </div>
+      <div>
+        <div class="lp-stat__value">∞</div>
+        <div class="lp-stat__label">Products tracked</div>
+      </div>
+      <div>
+        <div class="lp-stat__value">100%</div>
+        <div class="lp-stat__label">Data isolation per business</div>
+      </div>
+      <div>
+        <div class="lp-stat__value">24/7</div>
+        <div class="lp-stat__label">Access from anywhere</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
