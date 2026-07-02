@@ -7,6 +7,7 @@ from apps.inventory.models import Product, Category, StockMovement
 from apps.sales.models import Sale, SaleItem
 from apps.suppliers.models import Supplier
 from apps.accounts.models import UserProfile
+import json
 
 
 def get_tenant(request):
@@ -15,6 +16,14 @@ def get_tenant(request):
 
 @login_required
 def home(request):
+    current_hour = timezone.localtime().hour
+    if current_hour < 12:
+        greeting = "Good morning"
+    elif current_hour < 17:
+        greeting = "Good afternoon"
+    else:
+        greeting = "Good evening"
+
     tenant = get_tenant(request)
     today = timezone.now().date()
     thirty_days_ago = today - timedelta(days=30)
@@ -106,26 +115,23 @@ def home(request):
         tenant=tenant
     ).select_related('product').order_by('-created_at')[:5]
 
-    return render(request, 'dashboard/home.html', {
-        # Counts
-        'total_products': total_products,
-        'total_categories': total_categories,
-        'total_suppliers': total_suppliers,
-        'total_staff': total_staff,
-        # Revenue
-        'total_revenue': total_revenue,
-        'revenue_this_month': revenue_this_month,
-        'revenue_this_week': revenue_this_week,
-        'total_sales_count': total_sales_count,
-        # Inventory
-        'inventory_value': inventory_value,
-        'low_stock': low_stock,
-        'out_of_stock': out_of_stock,
-        # Lists
-        'recent_sales': recent_sales,
-        'top_products': top_products,
-        'recent_movements': recent_movements,
-        # Chart
-        'chart_labels': chart_labels,
-        'chart_values': chart_values,
-    })
+    context = {
+    'greeting': greeting,
+    'total_products': total_products,
+    'total_categories': total_categories,
+    'total_sales_count': total_sales_count,
+    'total_suppliers': total_suppliers,
+    'out_of_stock': out_of_stock,
+    'low_stock': low_stock,
+    'total_revenue': total_revenue,
+    'revenue_this_month': revenue_this_month,
+    'revenue_this_week': revenue_this_week,
+    'recent_sales': recent_sales,
+    'top_products': top_products,
+    'recent_movements': recent_movements,
+    'inventory_value': inventory_value,
+    'chart_labels': json.dumps(chart_labels),
+    'chart_values': json.dumps(chart_values),
+}
+
+    return render(request, 'dashboard/home.html', context)

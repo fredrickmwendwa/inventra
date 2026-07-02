@@ -11,20 +11,17 @@
 
 {% block content %}
 
-  <div class="sf-welcome">
+<div class="sf-welcome">
   <div>
     <h1 class="sf-welcome__heading">
-      {% now "G" as hour %}
-      Good
-      {% if hour|add:0 < 12 %}morning{% elif hour|add:0 < 17 %}afternoon{% else %}evening{% endif %},
+      {{ greeting|default:"Good day" }},
       {{ request.user.first_name|default:request.user.username }}
     </h1>
-    <p class="sf-welcome__sub" style="margin-top: 4px">
+    <p class="sf-welcome__sub" style="margin-top:4px;">
       Here's how {{ tenant.name|default:"your business" }} is
       doing today, {% now "l j F Y" %}.
     </p>
   </div>
-
   <div class="sf-welcome__actions">
     <a href="{% url 'inventory:add_product' %}" class="sf-btn sf-btn--secondary">
       Add product
@@ -42,7 +39,6 @@
 <!-- ══ KPI ROW ══ -->
 <div class="sf-kpi-row">
 
-  <!-- Total products -->
   <div class="sf-kpi-card sf-kpi-card--brand">
     <div class="sf-kpi-card__top">
       <div class="sf-eyebrow">Total products</div>
@@ -62,7 +58,6 @@
     </div>
   </div>
 
-  <!-- Total confirmed sales -->
   <div class="sf-kpi-card">
     <div class="sf-kpi-card__top">
       <div class="sf-eyebrow">Confirmed sales</div>
@@ -82,7 +77,6 @@
     </div>
   </div>
 
-  <!-- Active suppliers -->
   <div class="sf-kpi-card">
     <div class="sf-kpi-card__top">
       <div class="sf-eyebrow">Active suppliers</div>
@@ -100,7 +94,6 @@
     </div>
   </div>
 
-  <!-- Stock alerts -->
   <div class="sf-kpi-card sf-kpi-card--danger">
     <div class="sf-kpi-card__top">
       <div class="sf-eyebrow">Stock alerts</div>
@@ -113,12 +106,11 @@
         </svg>
       </span>
     </div>
-    {% with oos_count=out_of_stock|length low_count=low_stock|length %}
-    <div class="sf-kpi-card__value sf-num"
-         data-count-up>{{ oos_count|add:low_count }}</div>
+    {% with oos=out_of_stock|length low=low_stock|length %}
+    <div class="sf-kpi-card__value sf-num" data-count-up>{{ oos|add:low }}</div>
     <div>
       <span class="sf-kpi-card__delta-context">
-        {{ oos_count }} out · {{ low_count }} low
+        {{ oos }} out · {{ low }} low
       </span>
     </div>
     {% endwith %}
@@ -166,8 +158,7 @@
         <div class="sf-chart-legend" style="margin-top:var(--space-1);">
           <span class="sf-chart-legend__item">
             <span class="sf-chart-legend__dot"
-                  style="background:var(--color-brand);">
-            </span>
+                  style="background:var(--color-brand);"></span>
             Confirmed sales
           </span>
         </div>
@@ -215,15 +206,13 @@
           {{ out_of_stock|length }}
         </span>
       </div>
-
       <div class="sf-card__body" style="padding-top:var(--space-3);">
         {% if out_of_stock %}
           {% for product in out_of_stock|slice:":5" %}
             <div class="sf-stock-row">
               <div class="sf-stock-row__thumb" aria-hidden="true">
                 {% if product.image %}
-                  <img src="{{ product.image.url }}"
-                       alt="{{ product.name }}"
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}"
                        style="width:100%;height:100%;object-fit:cover;">
                 {% else %}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -235,12 +224,9 @@
               </div>
               <div class="sf-stock-row__body">
                 <div class="sf-stock-row__name">{{ product.name }}</div>
-                <div class="sf-stock-row__sub">
-                  {{ product.sku|default:"No SKU" }}
-                </div>
+                <div class="sf-stock-row__sub">{{ product.sku|default:"No SKU" }}</div>
               </div>
-              <div class="sf-stock-row__qty"
-                   style="color:var(--color-danger);">
+              <div class="sf-stock-row__qty" style="color:var(--color-danger);">
                 0 left
               </div>
             </div>
@@ -279,15 +265,13 @@
           {{ low_stock|length }}
         </span>
       </div>
-
       <div class="sf-card__body" style="padding-top:var(--space-3);">
         {% if low_stock %}
           {% for product in low_stock|slice:":5" %}
             <div class="sf-stock-row">
               <div class="sf-stock-row__thumb" aria-hidden="true">
                 {% if product.image %}
-                  <img src="{{ product.image.url }}"
-                       alt="{{ product.name }}"
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}"
                        style="width:100%;height:100%;object-fit:cover;">
                 {% else %}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -299,12 +283,9 @@
               </div>
               <div class="sf-stock-row__body">
                 <div class="sf-stock-row__name">{{ product.name }}</div>
-                <div class="sf-stock-row__sub">
-                  {{ product.sku|default:"No SKU" }}
-                </div>
+                <div class="sf-stock-row__sub">{{ product.sku|default:"No SKU" }}</div>
               </div>
-              <div class="sf-stock-row__qty"
-                   style="color:var(--color-accent-amber);">
+              <div class="sf-stock-row__qty" style="color:var(--color-accent-amber);">
                 {{ product.stock_quantity }} left
               </div>
             </div>
@@ -325,11 +306,10 @@
       </div>
     </div>
 
-  </div><!-- /sf-alerts-stack -->
+  </div>
+</div>
 
-</div><!-- /sf-dash-split -->
-
-<!-- ══ BOTTOM ROW: Recent sales + Top products + Movements ══ -->
+<!-- ══ BOTTOM ROW ══ -->
 <div class="sf-dash-row">
 
   <!-- Recent sales -->
@@ -337,8 +317,7 @@
     <div class="sf-card__header">
       <h2 class="sf-card-title">Recent sales</h2>
       <a href="{% url 'sales:sale_list' %}"
-         class="sf-small"
-         style="color:var(--color-brand-strong);">
+         class="sf-small" style="color:var(--color-brand-strong);">
         View all →
       </a>
     </div>
@@ -360,7 +339,7 @@
               <div class="sf-timeline-item__body">
                 <a href="{% url 'sales:sale_detail' sale.id %}"
                    class="sf-timeline-item__title"
-                   style="text-decoration:none; display:block;">
+                   style="text-decoration:none;display:block;">
                   {{ sale.sale_number }} · {{ sale.customer_name }}
                 </a>
                 <p class="sf-timeline-item__meta">
@@ -403,16 +382,15 @@
     </div>
   </div>
 
-  <!-- Right column: Top products + Recent movements -->
-  <div style="display:flex; flex-direction:column; gap:var(--space-5);">
+  <!-- Right column -->
+  <div style="display:flex;flex-direction:column;gap:var(--space-5);">
 
     <!-- Top selling products -->
     <div class="sf-card">
       <div class="sf-card__header">
         <h2 class="sf-card-title">Top selling products</h2>
         <a href="{% url 'inventory:product_list' %}"
-           class="sf-small"
-           style="color:var(--color-brand-strong);">
+           class="sf-small" style="color:var(--color-brand-strong);">
           All products →
         </a>
       </div>
@@ -425,14 +403,11 @@
                   {% if forloop.counter == 1 %}sf-top-product__rank--gold
                   {% elif forloop.counter == 2 %}sf-top-product__rank--silver
                   {% elif forloop.counter == 3 %}sf-top-product__rank--bronze
-                  {% endif %}"
-                  aria-hidden="true">
+                  {% endif %}" aria-hidden="true">
                   {{ forloop.counter }}
                 </span>
                 <div class="sf-top-product__body">
-                  <div class="sf-top-product__name">
-                    {{ product.product__name }}
-                  </div>
+                  <div class="sf-top-product__name">{{ product.product__name }}</div>
                   <div class="sf-top-product__bar-wrap">
                     <div class="sf-top-product__bar-fill"
                          style="width:{% widthratio product.total_qty max_qty 100 %}%;">
@@ -446,7 +421,7 @@
             {% endfor %}
           {% endwith %}
         {% else %}
-          <p class="sf-small" style="padding:var(--space-4) 0; text-align:center;">
+          <p class="sf-small" style="padding:var(--space-4) 0;text-align:center;">
             No confirmed sales yet
           </p>
         {% endif %}
@@ -458,8 +433,7 @@
       <div class="sf-card__header">
         <h2 class="sf-card-title">Stock movements</h2>
         <a href="{% url 'inventory:stock_movements' %}"
-           class="sf-small"
-           style="color:var(--color-brand-strong);">
+           class="sf-small" style="color:var(--color-brand-strong);">
           View all →
         </a>
       </div>
@@ -475,21 +449,18 @@
                   aria-hidden="true">
                   {% if movement.movement_type == 'in' %}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 19V5M5 12l7-7 7 7"
-                            stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   {% elif movement.movement_type == 'out' %}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 5v14M5 12l7 7 7-7"
-                            stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   {% else %}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <path d="M7 16V8m10 8V8M3 12h18"
-                            stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round"/>
+                      <path d="M7 16V8m10 8V8M3 12h18" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round"/>
                     </svg>
                   {% endif %}
                 </span>
@@ -512,7 +483,7 @@
             {% endfor %}
           </div>
         {% else %}
-          <p class="sf-small" style="padding:var(--space-4) 0; text-align:center;">
+          <p class="sf-small" style="padding:var(--space-4) 0;text-align:center;">
             No movements recorded yet
           </p>
         {% endif %}
@@ -520,8 +491,7 @@
     </div>
 
   </div>
-
-</div><!-- /sf-dash-row -->
+</div>
 
 <!-- ══ INVENTORY SNAPSHOT STRIP ══ -->
 <div class="sf-card">
@@ -538,13 +508,10 @@
     </a>
   </div>
   <div class="sf-snapshot-strip">
-
     <div class="sf-snapshot-item">
-      <div class="sf-snapshot-item__value sf-num"
-           data-count-up>{{ total_products }}</div>
+      <div class="sf-snapshot-item__value sf-num" data-count-up>{{ total_products }}</div>
       <div class="sf-snapshot-item__label">Active products</div>
     </div>
-
     <div class="sf-snapshot-item">
       <div class="sf-snapshot-item__value sf-num"
            style="color:var(--color-brand-strong);">
@@ -552,7 +519,6 @@
       </div>
       <div class="sf-snapshot-item__label">Stock value (cost)</div>
     </div>
-
     <div class="sf-snapshot-item">
       <div class="sf-snapshot-item__value sf-num"
            style="{% if out_of_stock %}color:var(--color-danger);{% else %}color:var(--color-brand-strong);{% endif %}">
@@ -560,7 +526,6 @@
       </div>
       <div class="sf-snapshot-item__label">Out of stock</div>
     </div>
-
   </div>
 </div>
 
@@ -571,22 +536,23 @@
 <script>
 (function () {
 
-  /* ── Chart data from Django view ──
-     The view JSON-encodes chart_labels/chart_values (json.dumps), so parse
-     them here rather than relying on {{ var|safe }} dropping a raw Python
-     repr into the script (which breaks on Decimal values, querysets, etc). */
-  var labels = [];
-  var values = [];
-  try {
-    labels = JSON.parse('{{ chart_labels|escapejs }}');
-    values = JSON.parse('{{ chart_values|escapejs }}');
-  } catch (e) {
-    console.error('Could not parse chart data from server:', e);
-  }
+  /* ── Chart data
+     Use |safe directly — the view sends json.dumps() output
+     which is already valid JavaScript array syntax.
+     Do NOT use JSON.parse + |escapejs — that double-encodes
+     the quotes and breaks the parse. ── */
+  var labels = {{ chart_labels|safe }};
+  var values = {{ chart_values|safe }};
+
+  /* Defensive fallback in case the view sent something unexpected */
   if (!Array.isArray(labels)) labels = [];
   if (!Array.isArray(values)) values = [];
 
-  /* ── Resolve colours from CSS tokens ── */
+  /* ── Grab the canvas — bail early if it's missing ── */
+  var ctx = document.getElementById('revenueChart');
+  if (!ctx) return;
+
+  /* ── Read CSS design tokens so the chart matches the theme ── */
   var style    = getComputedStyle(document.documentElement);
   var brand    = style.getPropertyValue('--color-brand').trim();
   var brandStr = style.getPropertyValue('--color-brand-strong').trim();
@@ -594,9 +560,6 @@
   var faint    = style.getPropertyValue('--color-ink-faint').trim();
   var raised   = style.getPropertyValue('--color-bg-raised').trim();
   var ink      = style.getPropertyValue('--color-ink').trim();
-
-  var ctx = document.getElementById('revenueChart');
-  if (!ctx) return;
 
   /* ── Build chart ── */
   var chart = new Chart(ctx, {
@@ -607,9 +570,8 @@
         label: 'Revenue (KES)',
         data: values,
         backgroundColor: function (context) {
-          /* Today's bar (last) slightly darker */
-          var index = context.dataIndex;
-          return index === values.length - 1 ? brandStr : brand;
+          /* Today's bar (last index) is slightly darker */
+          return context.dataIndex === values.length - 1 ? brandStr : brand;
         },
         borderRadius: 4,
         borderSkipped: false,
@@ -654,38 +616,23 @@
       },
       scales: {
         x: {
-          grid: {
-            display: false,
-          },
-          border: {
-            display: false,
-          },
+          grid: { display: false },
+          border: { display: false },
           ticks: {
             color: faint,
-            font: {
-              family: "'IBM Plex Mono', monospace",
-              size: 10,
-            },
+            font: { family: "'IBM Plex Mono', monospace", size: 10 },
           }
         },
         y: {
-          grid: {
-            color: border,
-          },
-          border: {
-            display: false,
-          },
+          grid: { color: border },
+          border: { display: false },
           ticks: {
             color: faint,
-            font: {
-              family: "'IBM Plex Mono', monospace",
-              size: 10,
-            },
+            font: { family: "'IBM Plex Mono', monospace", size: 10 },
             callback: function (value) {
-              if (value >= 1000) {
-                return 'KES ' + (value / 1000).toFixed(0) + 'K';
-              }
-              return 'KES ' + value;
+              return value >= 1000
+                ? 'KES ' + (value / 1000).toFixed(0) + 'K'
+                : 'KES ' + value;
             }
           },
           beginAtZero: true,
@@ -694,17 +641,19 @@
     }
   });
 
-  /* ── Re-skin chart when theme toggles ── */
+  /* ── Re-skin when the theme toggles.
+     Wait 340ms so CSS vars have fully transitioned
+     (--duration-slow is 320ms) before we read them. ── */
   document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       setTimeout(function () {
-        var s2      = getComputedStyle(document.documentElement);
-        var brand2  = s2.getPropertyValue('--color-brand').trim();
-        var brandS2 = s2.getPropertyValue('--color-brand-strong').trim();
-        var border2 = s2.getPropertyValue('--color-border').trim();
-        var faint2  = s2.getPropertyValue('--color-ink-faint').trim();
-        var raised2 = s2.getPropertyValue('--color-bg-raised').trim();
-        var ink2    = s2.getPropertyValue('--color-ink').trim();
+        var s       = getComputedStyle(document.documentElement);
+        var brand2  = s.getPropertyValue('--color-brand').trim();
+        var brandS2 = s.getPropertyValue('--color-brand-strong').trim();
+        var border2 = s.getPropertyValue('--color-border').trim();
+        var faint2  = s.getPropertyValue('--color-ink-faint').trim();
+        var raised2 = s.getPropertyValue('--color-bg-raised').trim();
+        var ink2    = s.getPropertyValue('--color-ink').trim();
 
         chart.data.datasets[0].backgroundColor = function (context) {
           return context.dataIndex === values.length - 1 ? brandS2 : brand2;
@@ -719,7 +668,7 @@
         chart.options.scales.y.grid.color             = border2;
 
         chart.update();
-      }, 220);
+      }, 340);
     });
   });
 
