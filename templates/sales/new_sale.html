@@ -25,18 +25,8 @@
 
   <!-- Products data passed to JS for the line item builder -->
   <script type="application/json" id="sf-products-json">
-    [
-      {% for product in products %}
-      {
-        "id": {{ product.id }},
-        "name": "{{ product.name|escapejs }}",
-        "sku": "{{ product.sku|escapejs }}",
-        "unit_price": {{ product.unit_price }},
-        "stock_quantity": {{ product.stock_quantity }}
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
-  </script>
+  [{% for product in products %}{"id":{{ product.id }},"name":"{{ product.name|escapejs }}","sku":"{{ product.sku|escapejs }}","unit_price":{{ product.unit_price }},"stock_quantity":{{ product.stock_quantity }}}{% if not forloop.last %},{% endif %}{% endfor %}]
+</script>
 
   <div class="sf-sale-builder">
 

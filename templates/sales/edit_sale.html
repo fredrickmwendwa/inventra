@@ -135,15 +135,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<script type="application/json" id="sf-products-json">
+  [{% for product in products %}{"id":{{ product.id }},"name":"{{ product.name|escapejs }}","sku":"{{ product.sku|escapejs }}","unit_price":{{ product.unit_price }},"stock_quantity":{{ product.stock_quantity }}}{% if not forloop.last %},{% endif %}{% endfor %}]
+</script>
 <script type="application/json" id="sf-existing-items-json">
-  [
-    {% for item in sale.items.all %}
-    {
-      "productId": {{ item.product.id }},
-      "quantity":  {{ item.quantity }},
-      "price":     {{ item.unit_price }}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ]
+  [{% for item in sale.items.all %}{"productId":{{ item.product.id }},"quantity":{{ item.quantity }},"price":{{ item.unit_price }}}{% if not forloop.last %},{% endif %}{% endfor %}]
 </script>
 {% endblock %}

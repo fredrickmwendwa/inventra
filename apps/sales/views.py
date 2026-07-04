@@ -349,32 +349,32 @@ def confirm_sale(request, sale_id):
         messages.error(request, 'Only draft sales can be confirmed.')
         return redirect('sales:sale_detail', sale_id=sale.id)
 
-    # Run the same stock check before confirming
-    errors = []
-    for item in sale.items.all():
-        product = item.product
-        if product.stock_quantity == 0:
-            errors.append(
-                f'"{product.name}" is now out of stock. '
-                f'Remove it from the sale before confirming.'
-            )
-        elif item.quantity > product.stock_quantity:
-            errors.append(
-                f'"{product.name}": sale has {item.quantity} '
-                f'but only {product.stock_quantity} '
-                f'{"is" if product.stock_quantity == 1 else "are"} now in stock. '
-                f'Edit the sale to reduce the quantity first.'
-            )
-
-    if errors:
-        for err in errors:
-            messages.error(request, err)
-        return redirect('sales:sale_detail', sale_id=sale.id)
-
     with transaction.atomic():
-        for item in sale.items.all():
-            product                    = item.product
-            product.stock_quantity    -= item.quantity
+        # Lock the rows so no other request can touch
+        # these products until this transaction finishes
+        items = sale.items.select_related('product').select_for_update()
+
+        errors = []
+        for item in items:
+            product = item.product
+            if product.stock_quantity == 0:
+                errors.append(
+                    f'"{product.name}" is out of stock.'
+                )
+            elif item.quantity > product.stock_quantity:
+                errors.append(
+                    f'"{product.name}": need {item.quantity}, '
+                    f'only {product.stock_quantity} left.'
+                )
+
+        if errors:
+            for err in errors:
+                messages.error(request, err)
+            return redirect('sales:sale_detail', sale_id=sale.id)
+
+        for item in items:
+            product                 = item.product
+            product.stock_quantity -= item.quantity
             product.save()
 
             StockMovement.objects.create(
